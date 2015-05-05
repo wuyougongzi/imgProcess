@@ -1,0 +1,16 @@
+1 	查看git配置信息： git config --list 
+	配置用户名： git config --global user.name "username" 
+	配置email: git config --global user.email "username@exmple.com"
+
+2 	git clone 将github上面的代码同步下来
+	git clone https://github.com/wuyougongzi/imgProcess
+
+3 	添加文件：git add 
+
+4	提交 git commit -m "message"
+
+5	同步到远程库：git push origin master
+
+ 一般来说避免冲突： git pull --rebase 
+
+注意：提交的文件最好采用utf-8 不带bom的
