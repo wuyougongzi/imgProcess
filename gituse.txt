@@ -1,4 +1,4 @@
-1 	查看git配置信息： git config --list 
+﻿1 	查看git配置信息： git config --list 
 	配置用户名： git config --global user.name "username" 
 	配置email: git config --global user.email "username@exmple.com"
 
@@ -10,6 +10,10 @@
 4	提交 git commit -m "message"
 
 5	同步到远程库：git push origin master
+
+6	如果改写了本地代码，但是暂时还没有add到本地存储中的，要还原
+	自己的代码
+	git checkout -- filepath 
 
  一般来说避免冲突： git pull --rebase 
 
