@@ -15,6 +15,10 @@
 	自己的代码
 	git checkout -- filepath 
 
+7	查看本地commit历史纪录
+	git log	
+
+
  一般来说避免冲突： git pull --rebase 
 
 注意：提交的文件最好采用utf-8 不带bom的
