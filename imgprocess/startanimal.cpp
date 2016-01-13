@@ -12,15 +12,15 @@ void StartAnimal::startAnimal()
     this->setPixmap(QPixmap(":/image/cat.jpg"));
     this->show();
 
-    this->showMessage("start test", Qt::AlignCenter, Qt::white);
+    this->showMessage("wecomle to imgprocess imgprocess starting", Qt::AlignCenter, Qt::white);
     QTime time;
     time.start();
-    while(time.elapsed() < 1000 * 5);
+    while(time.elapsed() < 1000 * 1);
 
-    this->showMessage("start End", Qt::AlignCenter, Qt::white);
+    this->showMessage("imgprocess ending", Qt::AlignCenter, Qt::white);
 
     time.start();
-    while(time.elapsed() < 1000 * 5);
+    while(time.elapsed() < 1000 * 1);
 }
 
 void StartAnimal::finishAnimal(QMainWindow &mainwindow)

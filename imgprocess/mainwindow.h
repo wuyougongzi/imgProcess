@@ -5,7 +5,6 @@
 #include <QPushButton>
 #include <QAction>
 //#include "showpicure.h"
-#include "openfiledgl.h"
 
 namespace Ui {
 class MainWindow;
@@ -41,12 +40,10 @@ public:
     /*
      *
     */
-
 private:
     Ui::MainWindow *ui;
  //   Ui::showPicture *m_showPitcure;
   //  ShowPicure* m_showPicture;
-    OpenFileDgl* m_pOpenFileDlg;
 };
 
 #endif // MAINWINDOW_H

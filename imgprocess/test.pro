@@ -15,12 +15,10 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     showpicure.cpp \
-    openfiledgl.cpp \
     startanimal.cpp
 
 HEADERS  += mainwindow.h \
     showpicure.h \
-    openfiledgl.h \
     startanimal.h
 
 FORMS    += mainwindow.ui \
