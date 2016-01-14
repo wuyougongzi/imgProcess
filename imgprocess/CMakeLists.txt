@@ -1,8 +1,8 @@
 PROJECT(ImgProcess)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-SET(PLATFORM_NAME "${PlatformName}")
-SET(CONFIGURATION_NAME "${ConfigurationName}")
+#指定配置类型
+SET(CMAKE_CONFIGURATION_TYPES "Debug;Release" )
 
 #添加QT4库
 FIND_PACKAGE(QT4 REQUIRED)
@@ -12,15 +12,15 @@ ADD_DEFINITIONS(${QT_DEFINITIONS})
 
 #将.h文件进行moc操作， ui文件进行uic操作，资源文件进行rcc操作
 #设置头文件
-SET(IMGPRROCESS_HEADERS startanimal.h showpicture.h mainwindow.h )
+SET(IMGPRROCESS_HEADERS startanimal.h showpicture.h imgprocesscenterwidget.h mainwindow.h)
 
 #设置ui文件
-SET(IMGPROCESS_UIS mainwindow.ui showPicure.ui)
+SET(IMGPROCESS_UIS mainwindow.ui showPicure.ui imgprocesscenterwidget.ui)
 #设置qrc文件
 SET(IMGPROCESS_QRCS img.qrc)
 
 #cmake 不区分大小写
-set(IMGPROCESS_SRCS main.cpp mainwindow.cpp startanimal.cpp showPicure.cpp)
+set(IMGPROCESS_SRCS main.cpp mainwindow.cpp startanimal.cpp showPicure.cpp imgprocesscenterwidget.cpp)
 
 QT4_WRAP_CPP (IMGPRROCESS_HEADERS_MOCS ${IMGPRROCESS_HEADERS})
 QT4_WRAP_UI (IMGPROCESS_UIS_UIC ${IMGPROCESS_UIS})
@@ -28,10 +28,11 @@ QT4_ADD_RESOURCES	(IMGPROCESS_QRCS_RCC ${IMGPROCESS_QRCS})
 
 
 #添加工程 并链接qt库
-add_executable(ImgProcess WIN32	${IMGPROCESS_SRCS}
-								${IMGPRROCESS_HEADERS_MOCS}}
+add_executable(ImgProcess WIN32	${IMGPRROCESS_HEADERS_MOCS}
+								${IMGPROCESS_SRCS}
 								${IMGPROCESS_UIS_UIC}
 								${IMGPROCESS_QRCS_RCC})
+
 
 target_link_libraries(ImgProcess ${QT_LIBRARIES})							
 
