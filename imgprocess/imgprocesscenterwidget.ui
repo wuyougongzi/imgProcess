@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ImgProcessCenterWidget</class>
+ <widget class="QStackedWidget" name="ImgProcessCenterWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>548</width>
+    <height>442</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>StackedWidget</string>
+  </property>
+  <widget class="ShowPicure" name="showpicture"/>
+  <widget class="QWidget" name="page"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ShowPicure</class>
+   <extends>QWidget</extends>
+   <header>showpicure.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

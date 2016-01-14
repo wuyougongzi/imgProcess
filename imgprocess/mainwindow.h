@@ -4,12 +4,13 @@
 #include <QMainWindow>
 #include <QPushButton>
 #include <QAction>
-//#include "showpicure.h"
+#include "showpicure.h"
 
 namespace Ui {
 class MainWindow;
-class showPicture;
 }
+
+//class ShowPicture;
 
 class MainWindow : public QMainWindow
 {
@@ -43,7 +44,7 @@ public:
 private:
     Ui::MainWindow *ui;
  //   Ui::showPicture *m_showPitcure;
-  //  ShowPicure* m_showPicture;
+    ShowPicure* m_showPicture;
 };
 
 #endif // MAINWINDOW_H

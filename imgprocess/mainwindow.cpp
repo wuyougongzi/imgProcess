@@ -1,8 +1,10 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include <QMessageBox>
 #include <QLabel>
 #include <QFileDialog>
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+//#include "showpicure.h"
+
 
 class QMenu;
 
@@ -11,16 +13,17 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-  //  connect(ui->okButton, SIGNAL(clicked()), this, SLOT(okClick()));
-  //  connect(ui->cancalButton, SIGNAL(clicked()), this, SLOT(cancalClick()));
+  //connect(ui->okButton, SIGNAL(clicked()), this, SLOT(okClick()));
+  //connect(ui->cancalButton, SIGNAL(clicked()), this, SLOT(cancalClick()));
     //todo:menu如何触发事件
+    m_showPicture = new ShowPicure(this);
+    setCentralWidget(m_showPicture);
     connect(ui->actionOpenFile, SIGNAL(triggered()), this, SLOT(openFileAction()));
 
     //about&help Action
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(aboutAction()));
-
-    /*  QMenu* fileMenu =  menuBar()->addMenu(tr("&File"));
-
+    connect(ui->actionSaveFile, SIGNAL(triggered()), this, SLOT(saveFileAction()));
+    /* QMenu* fileMenu =  menuBar()->addMenu(tr("&File"));
     openFileAction = new QAction(tr("&OpenFile"), this);
     openFileAction->setShortcut(QKeySequence::Open);        //设置快捷键
     openFileAction->setStatusTip(tr("Open a file"));        //设置状态栏
@@ -37,30 +40,21 @@ MainWindow::~MainWindow()
 
 void MainWindow::openFileAction()
 {
-    QFileDialog* fileDlg = new QFileDialog(this, Qt::Dialog);
-    QString filePath = "C://Users//chongge//Pictures";
-    //设置默认打开路径
-    fileDlg->setDirectory(filePath);
-    //QFileDialog 设置可选文件名后缀
-    //可用QStringList设置多个文件名后缀
-    fileDlg->setNameFilter(QString("bmp"));
-    //设置默认
-    fileDlg->setAcceptMode(QFileDialog::AcceptOpen);
-    //设置打开的对话框的默认模式
-    fileDlg->setViewMode(QFileDialog::List);
-    //设置文件路径名称
-    fileDlg->setLabelText(QFileDialog::LookIn, QString("open in"));
-    //设置文件名的路径
-    fileDlg->setLabelText(QFileDialog::FileName, QString("haha"));
-    //设置默认文件名称
-    fileDlg->selectFile(QString("filenamehaha.bmp"));
-    //fileDlg->setNameFilters();
-    fileDlg->exec();
+    QString filePath = QFileDialog::getOpenFileName(this,
+                                                    tr("Open File"),
+                                                    "img",
+                                                    tr("Image (*.png *.jpg)"));
+    //todo:
 }
 
 void MainWindow::saveFileAction()
 {
     //todo:保存文件
+    QString filePath = QFileDialog::getSaveFileName(this,
+                                                    tr("Save File"),
+                                                    "img",
+                                                    tr("Image (*.png *.jpg)"));
+    //todo:
 }
 
 void MainWindow::saveFileAsAction()

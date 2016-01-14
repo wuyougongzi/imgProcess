@@ -15,14 +15,17 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     showpicure.cpp \
-    startanimal.cpp
+    startanimal.cpp \
+    imgprocesscenterwidget.cpp
 
 HEADERS  += mainwindow.h \
     showpicure.h \
-    startanimal.h
+    startanimal.h \
+    imgprocesscenterwidget.h
 
 FORMS    += mainwindow.ui \
-    showPicure.ui
+    showPicure.ui \
+    imgprocesscenterwidget.ui
 
 RESOURCES += \
     img.qrc
