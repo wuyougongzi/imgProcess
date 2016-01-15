@@ -4,13 +4,13 @@
 #include <QMainWindow>
 #include <QPushButton>
 #include <QAction>
-#include "showpicure.h"
+#include "showpicture.h"
 
 namespace Ui {
 class MainWindow;
 }
 
-//class ShowPicture;
+class ImgProcessCenterWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -32,19 +32,9 @@ private slots:
     void helpOnlineAction();
     void helpOnLocalAction();
 
-   //for test
-private slots:
-    void okClick();
-    void cancalClick();
-
-public:
-    /*
-     *
-    */
 private:
-    Ui::MainWindow *ui;
- //   Ui::showPicture *m_showPitcure;
-    ShowPicure* m_showPicture;
+    Ui::MainWindow *ui;;
+    ImgProcessCenterWidget      *m_pCenterWidget;
 };
 
 #endif // MAINWINDOW_H

@@ -7,19 +7,21 @@ namespace Ui {
 class showPicture;
 }
 
-class ShowPicure : public QWidget
+class ShowPicture : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ShowPicure(QWidget *parent = 0);
+    explicit ShowPicture(QWidget *parent = 0);
 
 signals:
 
 private slots:
-    void testButtonClick();
-
+    void onBtnEnLargeClicked();
+    void onBtnZoomClicked();
+    void onBtnCutClicked();
+    void onBtnTransprentClicked();
 private:
-   Ui::showPicture *m_showPicture;
+   Ui::showPicture *ui;
 };
 
 #endif // SHOWPICURE_H

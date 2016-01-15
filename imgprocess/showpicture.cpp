@@ -1,30 +1,57 @@
-#include "showpicure.h"
-#include "ui_showPicure.h"
+#include "showpicture.h"
+#include "ui_showpicture.h"
 #include <QMessageBox>
 #include <QGraphicsScene>
 
-ShowPicure::ShowPicure(QWidget *parent) :
+ShowPicture::ShowPicture(QWidget *parent) :
     QWidget(parent),
-    m_showPicture(new Ui::showPicture)
+    ui(new Ui::showPicture)
 {
-    m_showPicture->setupUi(this);
+    ui->setupUi(this);
 
     QGraphicsScene *scene = new QGraphicsScene;
-
     scene->addPixmap(QPixmap(":/image/cat.jpg"));
+    ui->graphicsView->setScene(scene);
 
-    m_showPicture->graphicsView->setScene(scene);
- //   m_showPicture->graphicsView->resize(image->width() + 10, image->height() + 10);
-    //ui->graphicsView->show();
+    connect(ui->btnenlarge,
+            SIGNAL(clicked()),
+            this,
+            SLOT(onBtnEnLargeClicked()));
 
-   // m_showPicture->graphicsView
-   // connect(m_showPicture->testButton, SIGNAL(clicked()), this, SLOT(testButtonClick()));
+    connect(ui->btnzoom,
+            SIGNAL(clicked()),
+            this,
+            SLOT(onBtnZoomClicked()));
+
+    connect(ui->btntransparrent,
+            SIGNAL(clicked()),
+            this,
+            SLOT(onBtnTransprentClicked()));
+
+    connect(ui->btncut,
+            SIGNAL(clicked()),
+            this,
+            SLOT(onBtnCutClicked()));
+
 }
 
-
-void ShowPicure::testButtonClick()
+void ShowPicture::onBtnEnLargeClicked()
 {
-    QMessageBox box;
-    box.setText("test Button click");
-    box.exec();
+    //todo: 图片放大算法
+
+}
+
+void ShowPicture::onBtnZoomClicked()
+{
+
+}
+
+void ShowPicture::onBtnTransprentClicked()
+{
+
+}
+
+void ShowPicture::onBtnCutClicked()
+{
+
 }

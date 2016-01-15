@@ -13,14 +13,17 @@
   <property name="windowTitle">
    <string>StackedWidget</string>
   </property>
-  <widget class="ShowPicure" name="showpicture"/>
+  <property name="currentIndex">
+   <number>0</number>
+  </property>
+  <widget class="ShowPicture" name="showpicture"/>
   <widget class="QWidget" name="page"/>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ShowPicure</class>
+   <class>ShowPicture</class>
    <extends>QWidget</extends>
-   <header>showpicure.h</header>
+   <header>showpicture.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

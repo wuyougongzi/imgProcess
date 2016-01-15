@@ -2,8 +2,8 @@
 #include <QLabel>
 #include <QFileDialog>
 #include "mainwindow.h"
+#include "imgprocesscenterwidget.h"
 #include "ui_mainwindow.h"
-//#include "showpicure.h"
 
 
 class QMenu;
@@ -13,22 +13,20 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-  //connect(ui->okButton, SIGNAL(clicked()), this, SLOT(okClick()));
-  //connect(ui->cancalButton, SIGNAL(clicked()), this, SLOT(cancalClick()));
-    //todo:menu如何触发事件
-    m_showPicture = new ShowPicure(this);
-    setCentralWidget(m_showPicture);
+    m_pCenterWidget = new ImgProcessCenterWidget(this);
+    setCentralWidget(m_pCenterWidget);
     connect(ui->actionOpenFile, SIGNAL(triggered()), this, SLOT(openFileAction()));
 
     //about&help Action
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(aboutAction()));
     connect(ui->actionSaveFile, SIGNAL(triggered()), this, SLOT(saveFileAction()));
-    /* QMenu* fileMenu =  menuBar()->addMenu(tr("&File"));
+    /*
+    QMenu* fileMenu =  menuBar()->addMenu(tr("&File"));
     openFileAction = new QAction(tr("&OpenFile"), this);
     openFileAction->setShortcut(QKeySequence::Open);        //设置快捷键
     openFileAction->setStatusTip(tr("Open a file"));        //设置状态栏
     fileMenu->addAction(openFileAction);
-*/
+    */
 
 }
 
@@ -77,18 +75,4 @@ void MainWindow::helpOnLocalAction()
 {
     //todo:本地帮助文档
     //打开一个本地文件
-}
-
-void MainWindow::okClick()
-{
-    QMessageBox box;
-    box.setText("ok test");
-    box.exec();
-}
-
-void MainWindow::cancalClick()
-{
-    QMessageBox box;
-    box.setText("cancal test");
-    box.exec();
 }
