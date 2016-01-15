@@ -4,6 +4,9 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 #指定配置类型
 SET(CMAKE_CONFIGURATION_TYPES "Debug;Release" )
 
+set(CMAKE_AUTOMOC_ON)
+set(CMAKE_INCLUDE_CURRENT_DIR_ON)
+
 #添加QT4库
 FIND_PACKAGE(QT4 REQUIRED)
 INCLUDE(${QT_USE_FILE})
@@ -15,12 +18,12 @@ ADD_DEFINITIONS(${QT_DEFINITIONS})
 SET(IMGPRROCESS_HEADERS startanimal.h showpicture.h imgprocesscenterwidget.h mainwindow.h)
 
 #设置ui文件
-SET(IMGPROCESS_UIS mainwindow.ui showPicure.ui imgprocesscenterwidget.ui)
+SET(IMGPROCESS_UIS mainwindow.ui showpicture.ui imgprocesscenterwidget.ui)
 #设置qrc文件
 SET(IMGPROCESS_QRCS img.qrc)
 
 #cmake 不区分大小写
-set(IMGPROCESS_SRCS main.cpp mainwindow.cpp startanimal.cpp showPicure.cpp imgprocesscenterwidget.cpp)
+set(IMGPROCESS_SRCS main.cpp mainwindow.cpp startanimal.cpp showpicture.cpp imgprocesscenterwidget.cpp)
 
 QT4_WRAP_CPP (IMGPRROCESS_HEADERS_MOCS ${IMGPRROCESS_HEADERS})
 QT4_WRAP_UI (IMGPROCESS_UIS_UIC ${IMGPROCESS_UIS})
