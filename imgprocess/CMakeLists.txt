@@ -18,7 +18,11 @@ SET(IMGPROCESS_UIS mainwindow.ui showpicture.ui imgprocesscenterwidget.ui)
 SET(IMGPROCESS_QRCS img.qrc)
 
 #cmake 不区分大小写
-set(IMGPROCESS_SRCS main.cpp mainwindow.cpp startanimal.cpp showpicture.cpp imgprocesscenterwidget.cpp)
+set(IMGPROCESS_SRCS	main.cpp mainwindow.cpp 
+					startanimal.cpp 
+					showpicture.cpp 
+					imgprocesscenterwidget.cpp
+					imgprocess.rc)
 
 QT4_WRAP_CPP (IMGPRROCESS_HEADERS_MOCS ${IMGPRROCESS_HEADERS})
 QT4_WRAP_UI (IMGPROCESS_UIS_UIC ${IMGPROCESS_UIS})
