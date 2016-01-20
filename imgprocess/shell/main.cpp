@@ -11,6 +11,10 @@
 #include "ui/mainwindow.h"
 #include "ui/startanimal.h"
 
+#include <opencv.hpp>
+
+using namespace cv;
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -22,4 +26,26 @@ int main(int argc, char *argv[])
 
     startAnimal->finishAnimal(w);
     return a.exec();
+
+}
+
+//
+/*
+下面的函数是用于测试opencv环境的，不允许其他地方调用
+*/
+//
+void OpenCvEnvironmentTest()
+{
+	const char* imageName = "C:\\Users\\chongge\\Documents\\Visual Studio 2010\\Projects\\cvtest\\cat.jpg";
+	Mat img =  imread(imageName);
+	
+	if(img.empty())
+	{
+		fprintf(stderr, "Can not load image%s\n", imageName);
+		return ;
+	}
+	//	namedWindow("image", 1);
+	imshow("image", img);
+	
+	waitKey();
 }

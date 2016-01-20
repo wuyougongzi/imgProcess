@@ -40,32 +40,47 @@ QT4_WRAP_CPP (IMGPRROCESS_HEADERS_MOCS ${IMGPRROCESS_HEADERS})
 QT4_WRAP_UI (IMGPROCESS_UIS_UIC ${IMGPROCESS_UIS})
 QT4_ADD_RESOURCES	(IMGPROCESS_QRCS_RCC ${IMGPROCESS_QRCS})
 
+
+#添加opencv库头文件
+include_directories(include
+					include/opencv
+					include/opencv2
+					)
+					
+#添加opencvlib库
+set (OPENCVLIBPATH ${PROJECT_SOURCE_DIR}/3rdparty/opencv/x86/vc10)
+set (OPENCVLIB
+	${OPENCVLIBPATH}/lib/opencv_calib3d231d.lib
+	${OPENCVLIBPATH}/lib/opencv_contrib231d.lib
+	${OPENCVLIBPATH}/lib/opencv_core231d.lib
+	${OPENCVLIBPATH}/lib/opencv_features2d231d.lib
+	${OPENCVLIBPATH}/lib/opencv_flann231d.lib
+	${OPENCVLIBPATH}/lib/opencv_gpu231d.lib
+	${OPENCVLIBPATH}/lib/opencv_highgui231d.lib
+	${OPENCVLIBPATH}/lib/opencv_imgproc231d.lib
+	${OPENCVLIBPATH}/lib/opencv_legacy231d.lib
+	${OPENCVLIBPATH}/lib/opencv_ml231d.lib
+	${OPENCVLIBPATH}/lib/opencv_objdetect231d.lib
+	${OPENCVLIBPATH}/lib/opencv_ts231d.lib
+	${OPENCVLIBPATH}/lib/opencv_video231d.lib
+	)
+
+#添加opencvdll库	
+set (OPENCVSHAREDLL
+	${OPENCVLIBPATH}/bin/opencv_core231d.dll
+	${OPENCVLIBPATH}/bin/opencv_highgui231d.dll
+	)
+	
 #添加工程 并链接qt库
 add_executable(ImgProcess	${IMGPRROCESS_HEADERS_MOCS}
 							${IMGPROCESS_SRCS}
 							${IMGPROCESS_UIS_UIC}
 							${IMGPROCESS_QRCS_RCC})
-							
-target_link_libraries(ImgProcess ${QT_LIBRARIES})	
-
-
-#添加opencv库头文件
-#include_directories(
-#					${PROJECT_SOURCE_DIR}/include/opencv
-#					${PROJECT_SOURCE_DIR}/include/opencv2)
+						
 					
-#添加opencv库
-#set (OPENCVLIBPATH )
-#set (OPENCVLIB
-#	/3rdparty/opencv/x86/vc10/lib/opencv_core231.lib
-#	/3rdparty/opencv/x86/vc10/lib/opencv_core231d.lib
-#	/3rdparty/opencv/x86/vc10/lib/opencv_highgui231.lib
-#	)					
-#link_libraries(ImgProcess
-#					)
-					
-#target_link_libraries(
-#					)
+target_link_libraries(ImgProcess 
+					${OPENCVLIB}
+					${QT_LIBRARIES})
 					
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
