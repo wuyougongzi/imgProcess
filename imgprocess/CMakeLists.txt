@@ -6,7 +6,9 @@ find_package(QT4 REQUIRED)
 include(${QT_USE_FILE})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_definitions(${QT_DEFINITIONS})
-
+					
+set(OPENCVSHARE)
+				
 #将.h文件进行moc操作， ui文件进行uic操作，资源文件进行rcc操作
 #设置头文件
 set(IMGPRROCESS_HEADERS 
@@ -14,7 +16,7 @@ set(IMGPRROCESS_HEADERS
 	shell/ui/showpicture.h 
 	shell/ui/imgprocesscenterwidget.h 
 	shell/ui/mainwindow.h)
-
+	
 #设置ui文件
 set(IMGPROCESS_UIS 
 	shell/ui/mainwindow.ui 
@@ -38,16 +40,33 @@ QT4_WRAP_CPP (IMGPRROCESS_HEADERS_MOCS ${IMGPRROCESS_HEADERS})
 QT4_WRAP_UI (IMGPROCESS_UIS_UIC ${IMGPROCESS_UIS})
 QT4_ADD_RESOURCES	(IMGPROCESS_QRCS_RCC ${IMGPROCESS_QRCS})
 
-
 #添加工程 并链接qt库
 add_executable(ImgProcess	${IMGPRROCESS_HEADERS_MOCS}
 							${IMGPROCESS_SRCS}
 							${IMGPROCESS_UIS_UIC}
 							${IMGPROCESS_QRCS_RCC})
+							
+target_link_libraries(ImgProcess ${QT_LIBRARIES})	
 
 
-target_link_libraries(ImgProcess ${QT_LIBRARIES})							
-
+#添加opencv库头文件
+#include_directories(
+#					${PROJECT_SOURCE_DIR}/include/opencv
+#					${PROJECT_SOURCE_DIR}/include/opencv2)
+					
+#添加opencv库
+#set (OPENCVLIBPATH )
+#set (OPENCVLIB
+#	/3rdparty/opencv/x86/vc10/lib/opencv_core231.lib
+#	/3rdparty/opencv/x86/vc10/lib/opencv_core231d.lib
+#	/3rdparty/opencv/x86/vc10/lib/opencv_highgui231.lib
+#	)					
+#link_libraries(ImgProcess
+#					)
+					
+#target_link_libraries(
+#					)
+					
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 ###############################################
