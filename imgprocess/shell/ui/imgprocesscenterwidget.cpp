@@ -12,3 +12,16 @@ ImgProcessCenterWidget::~ImgProcessCenterWidget()
 {
     delete ui;
 }
+
+void ImgProcessCenterWidget::setCenterWidgetShowPicture(QString filePath/* = ""*/)
+{
+    this->setCurrentIndex(CENTERWIDGETSHOWPICTURE);
+    QPixmap pixmap(filePath);
+    ui->showpicture->setOriginalPixmap(pixmap);
+    ui->showpicture->init();
+}
+
+QPixmap ImgProcessCenterWidget::getSavedPicture()
+{
+    return ui->showpicture->getProcessedPixmap();
+}

@@ -1,4 +1,4 @@
-#include <QApplication>
+﻿#include <QApplication>
 #include <QLabel>
 #include <QPushButton>
 #include <QObject>
@@ -26,7 +26,6 @@ int main(int argc, char *argv[])
 
     startAnimal->finishAnimal(w);
     return a.exec();
-
 }
 
 //

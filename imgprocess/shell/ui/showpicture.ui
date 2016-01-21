@@ -6,28 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>634</width>
-    <height>551</height>
+    <width>650</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QGraphicsView" name="graphicsView">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>50</y>
-     <width>351</width>
-     <height>331</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QPushButton" name="btnenlarge">
    <property name="geometry">
     <rect>
-     <x>480</x>
-     <y>80</y>
+     <x>550</x>
+     <y>110</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -39,8 +29,8 @@
   <widget class="QPushButton" name="btnzoom">
    <property name="geometry">
     <rect>
-     <x>480</x>
-     <y>150</y>
+     <x>550</x>
+     <y>180</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -52,8 +42,8 @@
   <widget class="QPushButton" name="btntransparrent">
    <property name="geometry">
     <rect>
-     <x>480</x>
-     <y>230</y>
+     <x>550</x>
+     <y>260</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -65,8 +55,8 @@
   <widget class="QPushButton" name="btncut">
    <property name="geometry">
     <rect>
-     <x>480</x>
-     <y>310</y>
+     <x>550</x>
+     <y>340</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -75,7 +65,28 @@
     <string>裁剪</string>
    </property>
   </widget>
+  <widget class="QLabel" name="labelshowpicture">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>450</width>
+     <height>450</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLabel#labelshowpicture
+{
+border-image:url(:/image/showpicture/whitevein.png);
+}</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resource/img.qrc"/>
+ </resources>
  <connections/>
 </ui>

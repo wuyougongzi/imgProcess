@@ -9,10 +9,6 @@ ShowPicture::ShowPicture(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QGraphicsScene *scene = new QGraphicsScene;
-    scene->addPixmap(QPixmap(":/image/cat.jpg"));
-    ui->graphicsView->setScene(scene);
-
     connect(ui->btnenlarge,
             SIGNAL(clicked()),
             this,
@@ -35,10 +31,16 @@ ShowPicture::ShowPicture(QWidget *parent) :
 
 }
 
+void ShowPicture::init()
+{
+    ui->labelshowpicture->setPixmap(m_originalPixmap);
+    m_processedPixmap = m_originalPixmap;
+}
+
 void ShowPicture::onBtnEnLargeClicked()
 {
     //todo: 图片放大算法
-
+    //ui->showpicwidget->
 }
 
 void ShowPicture::onBtnZoomClicked()
@@ -55,3 +57,14 @@ void ShowPicture::onBtnCutClicked()
 {
 
 }
+
+void ShowPicture::setOriginalPixmap(const QPixmap& pixmap)
+{
+    m_originalPixmap = pixmap;
+}
+
+QPixmap ShowPicture::getProcessedPixmap()
+{
+    return m_processedPixmap;
+}
+

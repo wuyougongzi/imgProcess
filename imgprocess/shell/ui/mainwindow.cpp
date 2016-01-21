@@ -1,10 +1,9 @@
-#include <QMessageBox>
+﻿#include <QMessageBox>
 #include <QLabel>
 #include <QFileDialog>
 #include "mainwindow.h"
 #include "imgprocesscenterwidget.h"
 #include "ui_mainwindow.h"
-
 
 class QMenu;
 
@@ -35,24 +34,25 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
 void MainWindow::openFileAction()
 {
     QString filePath = QFileDialog::getOpenFileName(this,
                                                     tr("Open File"),
                                                     "img",
                                                     tr("Image (*.png *.jpg)"));
-    //todo:
+    
+    m_pCenterWidget->setCenterWidgetShowPicture(filePath);
 }
 
 void MainWindow::saveFileAction()
 {
-    //todo:保存文件
     QString filePath = QFileDialog::getSaveFileName(this,
                                                     tr("Save File"),
                                                     "img",
                                                     tr("Image (*.png *.jpg)"));
-    //todo:
+
+    QPixmap pixmap = m_pCenterWidget->getSavedPicture();
+    pixmap.save(filePath);
 }
 
 void MainWindow::saveFileAsAction()
