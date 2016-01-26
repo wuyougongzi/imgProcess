@@ -1,11 +1,11 @@
 #include "screenjudge.h"
 #include <QDebug>
 
-CScreenJudge::CScreenJudge()
+ScreenJudge::ScreenJudge()
 {
 }
 
-CScreenJudge::CScreenJudge(int width,int height, QPoint pos)
+ScreenJudge::ScreenJudge(int width,int height, QPoint pos)
 {
     m_iWidth = width;
     m_iHeight = height;
@@ -14,48 +14,46 @@ CScreenJudge::CScreenJudge(int width,int height, QPoint pos)
     m_iDrawWidth = 0;
 }
 
-void CScreenJudge::setStartPoint(QPoint pos)
+void ScreenJudge::setStartPoint(QPoint pos)
 {
     m_startPoint = pos;
 }
 
-void CScreenJudge::setEndPoint(QPoint pos)
+void ScreenJudge::setEndPoint(QPoint pos)
 {
     m_endPoint = pos;
-    setDragPoint();//初始化九个点
-    updateDrawWidth();//刷新宽
-    updateDrawHeight();//刷新高
-    updateDrawRect();//返回可靠矩形
+    setDragPoint();         //初始化九个点
+    updateDrawWidth();      //刷新宽
+    updateDrawHeight();     //刷新高
+    updateDrawRect();       //返回可靠矩形
 }
 
-void CScreenJudge::updateDrawRect()
+void ScreenJudge::updateDrawRect()
 {
-    m_drawRect = QRect(m_westNorthPoint,m_eastSouthPoint);
+    m_drawRect = QRect(m_westNorthPoint, m_eastSouthPoint);
 }
 
-void CScreenJudge::updateDrawWidth()
+void ScreenJudge::updateDrawWidth()
 {
-    //drawWidth = endPoint.x() - startPoint.x();
     m_iDrawWidth = m_eastSouthPoint.x() - m_westNorthPoint.x();
 }
 
-void CScreenJudge::updateDrawHeight()
+void ScreenJudge::updateDrawHeight()
 {
-    //drawHeight = endPoint.y() - startPoint.y();
     m_iDrawHeight = m_eastSouthPoint.y() - m_westNorthPoint.y();
 }
 
-int CScreenJudge::drawWidth()
+int ScreenJudge::drawWidth()
 {
     return m_iDrawWidth;
 }
 
-int CScreenJudge::drawHeight()
+int ScreenJudge::drawHeight()
 {
     return m_iDrawHeight;
 }
 
-bool CScreenJudge::isInDrawArea(QPoint pos)
+bool ScreenJudge::isInDrawArea(QPoint pos)
 {
     if( pos.x() > m_westNorthPoint.x() && pos.x() < m_eastSouthPoint.x() && pos.y() > m_westNorthPoint.y() && pos.y() < m_eastSouthPoint.y() )
         return true;
@@ -63,21 +61,21 @@ bool CScreenJudge::isInDrawArea(QPoint pos)
     return false;
 }
 
-QRect CScreenJudge::drawRect()
+QRect ScreenJudge::drawRect()
 {
     return m_drawRect;
 }
 
-void CScreenJudge::cmpPoint(QPoint &LeftUpPoint, QPoint &RightDownPoint)
+void ScreenJudge::cmpPoint(QPoint &LeftUpPoint, QPoint &RightDownPoint)
 {
     QPoint L = LeftUpPoint;
     QPoint R = RightDownPoint;
-    if( L.x() <= R.x()  )  //起点在终点左侧
+    if(L.x() <= R.x())      //起点在终点左侧
     {
-        if( L.y() <= R.y() ) //左上
+        if(L.y() <= R.y())  //左上
         {
         }
-        else              //左下
+        else                //左下
         {
             LeftUpPoint.setY(R.y());
             RightDownPoint.setY(L.y());
@@ -85,7 +83,7 @@ void CScreenJudge::cmpPoint(QPoint &LeftUpPoint, QPoint &RightDownPoint)
     }
     else                //在右侧
     {
-        if( L.y() < R.y() ) //右上
+        if(L.y() < R.y()) //右上
         {
             LeftUpPoint.setX(R.x());
             RightDownPoint.setX(L.x());
@@ -100,7 +98,7 @@ void CScreenJudge::cmpPoint(QPoint &LeftUpPoint, QPoint &RightDownPoint)
     }
 }
 
-bool CScreenJudge::isInDragLine(QPoint pos)
+bool ScreenJudge::isInDragLine(QPoint pos)
 {
     if( pos.x() >= m_westNorthPoint.x() && pos.x() <= m_eastSouthPoint.x() && pos.y() >= m_westNorthPoint.y() && pos.y() <= m_eastSouthPoint.y() )
     {
@@ -112,7 +110,7 @@ bool CScreenJudge::isInDragLine(QPoint pos)
     return false;
 }
 
-void CScreenJudge::setDragPoint()
+void ScreenJudge::setDragPoint()
 {
     m_westNorthPoint = m_startPoint;
     m_eastSouthPoint = m_endPoint;
@@ -122,196 +120,152 @@ void CScreenJudge::setDragPoint()
     y1 = m_westNorthPoint.y();
     x2 = m_eastSouthPoint.x();
     y2 = m_eastSouthPoint.y();
-    x3 = (x1+x2)/2;
-    y3 = (y1+y2)/2;
+    x3 = (x1 + x2) / 2;
+    y3 = (y1 + y2) / 2;
 
-    m_eastPoint = QPoint(x2,y3);
-    m_westPoint = QPoint(x1,y3);
-    m_southPoint = QPoint(x3,y2);
-    m_northPoint = QPoint(x3,y1);
-    m_eastNorthPoint = QPoint(x2,y1);
-    m_westSouthPoint = QPoint(x1,y2);
-
+    m_eastPoint = QPoint(x2, y3);
+    m_westPoint = QPoint(x1, y3);
+    m_southPoint = QPoint(x3, y2);
+    m_northPoint = QPoint(x3, y1);
+    m_eastNorthPoint = QPoint(x2, y1);
+    m_westSouthPoint = QPoint(x1, y2);
 }
 
-DragJudge CScreenJudge::dragJudge(QPoint pos)
+DragJudge ScreenJudge::dragJudge(QPoint pos)
 {
-    if(pos == m_eastNorthPoint){
-        //qDebug()<< "1";
+    if(pos == m_eastNorthPoint)
         return DRAGJUDGE_EASTNORTH;
-    }
-    else if(pos == m_eastSouthPoint){
-        //qDebug()<< "2";
+    else if(pos == m_eastSouthPoint)
         return DRAGJUDGE_EASTSOUTH;
-    }
-    else if(pos == m_westNorthPoint){
-        //qDebug()<< "3";
+    else if(pos == m_westNorthPoint)
         return DRAGJUDGE_WESTNORTH;
-    }
-    else if(pos == m_westSouthPoint){
-        //qDebug()<< "4";
+    else if(pos == m_westSouthPoint)
         return DRAGJUDGE_WESTSOUTH;
-    }
-    else if(pos.x() == m_westNorthPoint.x()){
-        //qDebug()<< "5";
+    else if(pos.x() == m_westNorthPoint.x())
         return DRAGJUDGE_WEST;
-    }
-    else if(pos.y() == m_westNorthPoint.y()){
-        //qDebug()<< "6";
+    else if(pos.y() == m_westNorthPoint.y())
         return DRAGJUDGE_NORTH;
-    }
-    else if(pos.x() == m_eastSouthPoint.x()){
-        //qDebug()<< "7";
+    else if(pos.x() == m_eastSouthPoint.x())
         return DRAGJUDGE_EAST;
-    }
-    else if(pos.y() == m_eastSouthPoint.y()){
-        //qDebug()<< "8";
+    else if(pos.y() == m_eastSouthPoint.y())
         return DRAGJUDGE_SOUTH;
-    }
-	return DRAGJUDGE_NULL;
+
+    return DRAGJUDGE_NULL;
 }
 
-QPoint CScreenJudge::eastPoint()
+QPoint ScreenJudge::eastPoint()
 {
     return m_eastPoint;
 }
 
-QPoint CScreenJudge::westPoint()
+QPoint ScreenJudge::westPoint()
 {
     return m_westPoint;
 }
 
-QPoint CScreenJudge::southPoint()
+QPoint ScreenJudge::southPoint()
 {
     return m_southPoint;
 }
 
-QPoint CScreenJudge::northPoint()
+QPoint ScreenJudge::northPoint()
 {
     return m_northPoint;
 }
 
-QPoint CScreenJudge::eastSouthPoint()
+QPoint ScreenJudge::eastSouthPoint()
 {
     return m_eastSouthPoint;
 }
 
-QPoint CScreenJudge::eastNorthPoint()
+QPoint ScreenJudge::eastNorthPoint()
 {
     return m_eastNorthPoint;
 }
 
-QPoint CScreenJudge::westSouthPoint()
+QPoint ScreenJudge::westSouthPoint()
 {
     return m_westSouthPoint;
 }
 
-QPoint CScreenJudge::westNorthPoint()
+QPoint ScreenJudge::westNorthPoint()
 {
     return m_westNorthPoint;
 }
 
-void CScreenJudge::moveTo(QPoint pos)
+void ScreenJudge::moveTo(QPoint pos)
 {
     int Lx = m_westNorthPoint.x() + pos.x();
     int Ly = m_westNorthPoint.y() + pos.y();
     int Rx = m_eastSouthPoint.x() + pos.x();
     int Ry = m_eastSouthPoint.y() + pos.y();
 
-    //qDebug()<<"左上右下的位置："<<Lx<<","<<Ly<<","<<Rx<<","<<Ry;
-
     ////保障机制
-    if( Lx<0 )
+    if(Lx < 0)
     {
         Lx = 0;
         Rx -= pos.x();
     }
-    if( Ly<0 )
+    if(Ly < 0)
     {
         Ly = 0;
         Ry -= pos.y();
     }
-    if( Rx>m_iWidth)
+    if(Rx > m_iWidth)
     {
         Rx = m_iWidth;
         Lx -= pos.x();
-        /*qDebug()<<"左上右下的位置："<<Lx<<","<<Ly<<","<<Rx<<","<<Ry;*/
     }
-    if( Ry>m_iHeight )
+    if(Ry > m_iHeight)
     {
         Ry = m_iHeight;
         Ly -= pos.y();
-        /*qDebug()<<"左上右下的位置："<<Lx<<","<<Ly<<","<<Rx<<","<<Ry;*/
     }
-    /*
-    if(Rx == Width || Ry == Height)
-    {
-        if(Rx == Width && Ry == Height)
-            {
-                setstartPoint(QPoint(Lx,Ly));
-                setendPoint(QPoint(Rx-1,Ry-1));
-            }else if(Rx == Width)
-            {
-                setstartPoint(QPoint(Lx,Ly));
-                setendPoint(QPoint(Rx-1,Ry));
-            }else if(Ry == Height)
-            {
-                setstartPoint(QPoint(Lx,Ly));
-                setendPoint(QPoint(Rx,Ry-1));
-            }
-    }else{
-        setstartPoint(QPoint(Lx,Ly));
-        setendPoint(QPoint(Rx,Ry));
-    }
-    */
-    setStartPoint(QPoint(Lx,Ly));
-    setEndPoint(QPoint(Rx,Ry));
+    setStartPoint(QPoint(Lx, Ly));
+    setEndPoint(QPoint(Rx, Ry));
 }
 
-void CScreenJudge::setMousePoint(QPoint pos)
+void ScreenJudge::setMousePoint(QPoint pos)
 {
     m_mousePoint = pos;
 }
 
-QPoint CScreenJudge::mousePoint()
+QPoint ScreenJudge::mousePoint()
 {
     return m_mousePoint;
 }
 
-ZoomJudge CScreenJudge::zoomJudge()
+ZoomJudge ScreenJudge::zoomJudge()
 {
-    if(m_mousePoint.x() < m_iWidth - 150 && m_mousePoint.y() < m_iHeight -150){
+    if(m_mousePoint.x() < m_iWidth - 150 && m_mousePoint.y() < m_iHeight -150)
         return ZOOMJUDGE_LEFTUP;
-    }else if(m_mousePoint.x() > m_iWidth - 150 && m_mousePoint.y() > m_iHeight -150){
+    else if(m_mousePoint.x() > m_iWidth - 150 && m_mousePoint.y() > m_iHeight -150)
         return ZOOMJUDGE_RIGHTDOWN;
-    }else if(m_mousePoint.x() >= m_iWidth - 150){
+    else if(m_mousePoint.x() >= m_iWidth - 150)
         return ZOOMJUDGE_RIGHTUP;
-    }else if(m_mousePoint.y() >= m_iHeight -150){
+    else if(m_mousePoint.y() >= m_iHeight -150)
         return ZOOMJUDGE_LEFTDOWN;
-    }
-	return ZOOMJUDGE_NULL;
+
+    return ZOOMJUDGE_NULL;
 }
 
-ZoomJudge CScreenJudge::infoJudge()
+ZoomJudge ScreenJudge::infoJudge()
 {
-    if(m_eastNorthPoint.y() <= 30){
+    if(m_eastNorthPoint.y() <= 30)
         return ZOOMJUDGE_LEFTUP;
-    }
+
     return ZOOMJUDGE_LEFTDOWN;
 }
 
-DragJudge CScreenJudge::btnJudge()
+DragJudge ScreenJudge::btnJudge()
 {
     if(m_eastNorthPoint.y() < 30 && m_eastSouthPoint.y() +40 > m_iHeight)
-    {
         return DRAGJUDGE_INSIDE;
-    }else if(m_eastNorthPoint.y() < 30)
-    {
+    else if(m_eastNorthPoint.y() < 30)
         return DRAGJUDGE_SOUTH;
-    }else if(m_eastSouthPoint.y() +40 > m_iHeight)
-    {
+    else if(m_eastSouthPoint.y() +40 > m_iHeight)
         return DRAGJUDGE_NORTH;
-    }
+
     return DRAGJUDGE_SOUTH;
 }
 

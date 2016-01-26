@@ -27,11 +27,11 @@ enum DragJudge{
 	DRAGJUDGE_NULL
 };
 
-class CScreenJudge
+class ScreenJudge
 {
 public:
-    CScreenJudge();
-    CScreenJudge(int weight, int height, QPoint pos);
+    ScreenJudge();
+    ScreenJudge(int weight, int height, QPoint pos);
 
     //drawøÚªÊ÷∆”Î≈–∂®
     void setStartPoint(QPoint pos);

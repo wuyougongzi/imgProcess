@@ -58,7 +58,7 @@ signals:
 
 private:
     //类处理
-    QSharedPointer<CScreenJudge> m_pScreenJudge;
+    QSharedPointer<ScreenJudge> m_pScreenJudge;
 
     //屏幕处理
     int             m_iWidth;
