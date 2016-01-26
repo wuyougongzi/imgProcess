@@ -65,7 +65,7 @@
     <string>裁剪</string>
    </property>
   </widget>
-  <widget class="QLabel" name="labelshowpicture">
+  <widget class="ImgProcessArea" name="widgetshowpicture" native="true">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -75,16 +75,21 @@
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">QLabel#labelshowpicture
+    <string notr="true">QWidget#widgetshowpicture
 {
-border-image:url(:/image/showpicture/whitevein.png);
+border-image:url(:/showpicture/image/showpicture/greenvein.png);
 }</string>
-   </property>
-   <property name="text">
-    <string/>
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ImgProcessArea</class>
+   <extends>QWidget</extends>
+   <header>imgprocessarea.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../resource/img.qrc"/>
  </resources>

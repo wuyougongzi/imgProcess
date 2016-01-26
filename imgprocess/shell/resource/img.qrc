@@ -1,7 +1,15 @@
 <RCC>
     <qresource prefix="/">
         <file>image/cat.jpg</file>
-		<file>image/showpicture/whitevein.png</file>
+    </qresource>
+	<qresource prefix="/showpicture">
+        <file>image/showpicture/whitevein.png</file>
 		<file>image/showpicture/greenvein.png</file>
+    </qresource>
+	<qresource prefix="/screenshot">
+        <file>image/screenshot/screenshot_save.png</file>
+		<file>image/screenshot/screenshot_yes.png</file>
+		<file>image/screenshot/screenshot_no.png</file>
+		<file>image/screenshot/srceenshot_rectangle.png</file>
     </qresource>
 </RCC>
