@@ -27,6 +27,8 @@ private slots:
     void saveFileAsAction();
     //editaction
 
+    //settingaction
+    void hotKeySettingAction();
     //about&help action
     void aboutAction();
     void helpOnlineAction();

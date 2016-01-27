@@ -16,9 +16,10 @@ set(IMGPRROCESS_HEADERS
 	shell/ui/showpicture.h 
 	shell/ui/imgprocesscenterwidget.h 
 	shell/ui/mainwindow.h
+	shell/ui/imgprocessarea.h
+	shell/ui/hotkeytabledialog.h
 	shell/screenshot/screenimg.h
 	shell/screenshot/screenjudge.h
-	shell/ui/imgprocessarea.h
 	)
 	
 #设置ui文件
@@ -26,7 +27,9 @@ set(IMGPROCESS_UIS
 	shell/ui/mainwindow.ui 
 	shell/ui/showpicture.ui 
 	shell/ui/imgprocesscenterwidget.ui
-	shell/ui/imgprocessarea.ui)
+	shell/ui/imgprocessarea.ui
+	shell/ui/hotkeytabledialog.ui
+	)
 
 #设置qrc文件
 set(IMGPROCESS_QRCS 
@@ -40,9 +43,11 @@ set(IMGPROCESS_SRCS
 	shell/ui/showpicture.cpp 
 	shell/ui/imgprocesscenterwidget.cpp
 	shell/ui/imgprocessarea.cpp
+	shell/ui/hotkeytabledialog.cpp
 	shell/screenshot/screenimg.cpp
 	shell/screenshot/screenjudge.cpp
-	shell/resource/imgprocess.rc)
+	shell/resource/imgprocess.rc
+	)
 
 QT4_WRAP_CPP (IMGPRROCESS_HEADERS_MOCS ${IMGPRROCESS_HEADERS})
 QT4_WRAP_UI (IMGPROCESS_UIS_UIC ${IMGPROCESS_UIS})

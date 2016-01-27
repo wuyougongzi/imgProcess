@@ -3,6 +3,7 @@
 #include <QFileDialog>
 #include "mainwindow.h"
 #include "imgprocesscenterwidget.h"
+#include "hotkeytabledialog.h"
 #include "ui_mainwindow.h"
 
 class QMenu;
@@ -15,10 +16,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pCenterWidget = new ImgProcessCenterWidget(this);
     setCentralWidget(m_pCenterWidget);
     connect(ui->actionOpenFile, SIGNAL(triggered()), this, SLOT(openFileAction()));
-
-    //about&help Action
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(aboutAction()));
     connect(ui->actionSaveFile, SIGNAL(triggered()), this, SLOT(saveFileAction()));
+    connect(ui->actionHotKeySetting, SIGNAL(triggered()), this, SLOT(hotKeySettingAction()));
     /*
     QMenu* fileMenu =  menuBar()->addMenu(tr("&File"));
     openFileAction = new QAction(tr("&OpenFile"), this);
@@ -59,6 +59,16 @@ void MainWindow::saveFileAsAction()
 {
     //todo:文件保存为
 }
+
+void MainWindow::hotKeySettingAction()
+{
+    //本地数据需要保存
+   // HotKeyTableWidget* hotkeyTable = new HotKeyTableWidget(this);
+   // hotkeyTable->exec();
+    HotKeyTableDialog* hotkeyTable = new HotKeyTableDialog(this);
+    hotkeyTable->exec();
+}
+
 
 void MainWindow::aboutAction()
 {
