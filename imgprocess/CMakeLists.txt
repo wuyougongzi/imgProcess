@@ -18,6 +18,7 @@ set(IMGPRROCESS_HEADERS
 	shell/ui/mainwindow.h
 	shell/ui/imgprocessarea.h
 	shell/ui/hotkeytabledialog.h
+	shell/ui/hotkeylineedit.h
 	shell/screenshot/screenimg.h
 	shell/screenshot/screenjudge.h
 	)
@@ -44,6 +45,7 @@ set(IMGPROCESS_SRCS
 	shell/ui/imgprocesscenterwidget.cpp
 	shell/ui/imgprocessarea.cpp
 	shell/ui/hotkeytabledialog.cpp
+	shell/ui/hotkeylineedit.cpp
 	shell/screenshot/screenimg.cpp
 	shell/screenshot/screenjudge.cpp
 	shell/resource/imgprocess.rc
