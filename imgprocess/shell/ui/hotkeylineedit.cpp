@@ -1,5 +1,6 @@
 #include "hotkeylineedit.h"
 #include <QKeyEvent>
+#include <Windows.h>
 
 HotKeyLineEdit::HotKeyLineEdit(QObject* parent)
 {
@@ -63,13 +64,39 @@ void HotKeyLineEdit::keyPressEvent(QKeyEvent *pKeyEvent)
     if(hotkey != Qt::Key_Escape || hotkey != Qt::Key_Enter)
     {
         m_iHotKey = hotkey;
+        strHotKey.append(m_iHotKey - '0');
     }
     else
     {
-
+        int test = 0;
         //if(keyModefy) 
     }
     
-   // qDebug(strHotKey.ascii());
+    //拿到key了之后作一个表映射到window的值
+    qDebug(strHotKey.toAscii());
     //else
 }
+
+bool HotKeyLineEdit::winEvent(MSG *message, long *result)
+{
+    switch(message->message)
+    {
+    case WM_KEYDOWN:
+        {
+            //test
+            int a = 0;
+            //todo:
+        }
+        
+        return true;
+    case WM_CHAR:
+        {
+            //todo:
+        }
+        return true;
+    default:
+        break;
+    }
+    return QLineEdit::winEvent(message, result);
+}
+
