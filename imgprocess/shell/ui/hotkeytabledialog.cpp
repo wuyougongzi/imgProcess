@@ -1,6 +1,7 @@
 #include "hotkeytabledialog.h"
 #include "ui_hotkeytabledialog.h"
-#include <QKeyEvent>
+#include <Windows.h>
+
 
 HotKeyTableDialog::HotKeyTableDialog(QWidget *parent) :
     QDialog(parent),
@@ -14,13 +15,32 @@ HotKeyTableDialog::~HotKeyTableDialog()
     delete ui;
 }
 
-//捕获所有键盘消息
-void HotKeyTableDialog::keyPressEvent(QKeyEvent *keyEvent)
+
+bool HotKeyTableDialog::winEvent(MSG *message, long *result)
 {
-    //if(keyEvent->modifiers() )
-    //toodo:添加
-    //keyEvent.
-    //keyEvent->
-    //QString text = keyEvent->text();
-    //int k = keyEvent->count();
+    //这里拿到消息后设置到里面的hotkeyLineEdit
+    switch(message->message)
+    {
+    case WM_KEYDOWN:
+        {
+            //todo:
+        }
+        break;
+    case WM_CHAR:
+        {
+            //todo:
+        }
+        break;
+    case WM_SYSKEYDOWN:
+        {
+
+        }
+        break;
+    case WM_SYSCHAR:
+        {
+
+        }
+        break;
+    }
+    return QWidget::winEvent(message, result);
 }

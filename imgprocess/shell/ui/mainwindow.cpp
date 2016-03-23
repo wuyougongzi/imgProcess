@@ -4,6 +4,7 @@
 #include "mainwindow.h"
 #include "imgprocesscenterwidget.h"
 #include "hotkeytabledialog.h"
+#include "onlineexplorer.h"
 #include "ui_mainwindow.h"
 
 class QMenu;
@@ -26,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     openFileAction->setStatusTip(tr("Open a file"));        //设置状态栏
     fileMenu->addAction(openFileAction);
     */
-
+    connect(ui->actionHelpOnline, SIGNAL(triggered()), this, SLOT(helpOnlineAction()));
 }
 
 MainWindow::~MainWindow()
@@ -79,10 +80,13 @@ void MainWindow::helpOnlineAction()
 {
     //todo:在线帮助文档
     //打开一个网站或者打开一个webkit对话框
+    OnLineExplorer* pOnLineHelp = new OnLineExplorer(NULL);
+    pOnLineHelp->show();
 }
 
 void MainWindow::helpOnLocalAction()
 {
     //todo:本地帮助文档
     //打开一个本地文件
+
 }

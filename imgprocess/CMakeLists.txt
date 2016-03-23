@@ -19,6 +19,7 @@ set(IMGPRROCESS_HEADERS
 	shell/ui/imgprocessarea.h
 	shell/ui/hotkeytabledialog.h
 	shell/ui/hotkeylineedit.h
+	shell/ui/onlineexplorer.h
 	shell/screenshot/screenimg.h
 	shell/screenshot/screenjudge.h
 	)
@@ -30,6 +31,7 @@ set(IMGPROCESS_UIS
 	shell/ui/imgprocesscenterwidget.ui
 	shell/ui/imgprocessarea.ui
 	shell/ui/hotkeytabledialog.ui
+	shell/ui/onlineexplorer.ui
 	)
 
 #ÉèÖÃqrcÎÄ¼þ
@@ -46,8 +48,10 @@ set(IMGPROCESS_SRCS
 	shell/ui/imgprocessarea.cpp
 	shell/ui/hotkeytabledialog.cpp
 	shell/ui/hotkeylineedit.cpp
+	shell/ui/onlineexplorer.cpp
 	shell/screenshot/screenimg.cpp
 	shell/screenshot/screenjudge.cpp
+	shell/utility/winsort.h
 	shell/resource/imgprocess.rc
 	)
 
@@ -98,7 +102,8 @@ add_executable(ImgProcess	${IMGPRROCESS_HEADERS_MOCS}
 					
 target_link_libraries(ImgProcess 
 					${OPENCVLIB}
-					${QT_LIBRARIES})
+					${QT_LIBRARIES}
+					Qt4::QtWebKit)
 					
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 

@@ -16,7 +16,7 @@ public:
     ~HotKeyTableDialog();
 
 protected:
-    virtual void keyPressEvent(QKeyEvent *) override;
+    virtual bool winEvent(MSG *message, long *result);
 
 private:
     Ui::HotKeyTableDialog *ui;
