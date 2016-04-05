@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <widget class="QPushButton" name="btnenlarge">
    <property name="geometry">
     <rect>
@@ -65,21 +68,94 @@
     <string>裁剪</string>
    </property>
   </widget>
-  <widget class="ImgProcessArea" name="widgetshowpicture" native="true">
+  <widget class="QWidget" name="widget" native="true">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>450</width>
-     <height>450</height>
+     <width>481</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QPushButton" name="btnLine">
+      <property name="text">
+       <string>Line</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btnPoint">
+      <property name="text">
+       <string>Point</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btnPloyLine">
+      <property name="text">
+       <string>PloyLine</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btnPloygon">
+      <property name="text">
+       <string>Ploygon</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btnRectangle">
+      <property name="text">
+       <string>Rectangle</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btnEclipse">
+      <property name="text">
+       <string>Eclipse</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btnPixmap">
+      <property name="text">
+       <string>Pixmap</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="widget_2" native="true">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>60</y>
+     <width>491</width>
+     <height>451</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">QWidget#widgetshowpicture
-{
-border-image:url(:/showpicture/image/showpicture/greenvein.png);
-}</string>
+    <string notr="true">background-color: rgb(255, 255, 255);</string>
    </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="ImgProcessArea" name="imgprocessarea" native="true">
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <customwidgets>

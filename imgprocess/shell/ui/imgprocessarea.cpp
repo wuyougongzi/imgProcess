@@ -4,7 +4,9 @@
 
 ImgProcessArea::ImgProcessArea(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ImgProcessArea)
+    ui(new Ui::ImgProcessArea),
+    m_bIsPainterShape(false),
+    m_pShapeType(SHAPERECT)
 {
     ui->setupUi(this);
 
@@ -16,7 +18,6 @@ ImgProcessArea::ImgProcessArea(QWidget *parent) :
     //ui->widgetshowpicture->setStyleSheet("border-image:url(:/showpicture/image/showpicture/whitevein.png);");
     //this->setStyleSheet("border-image:url(:/showpicture/image/showpicture/whitevein.png)");
     m_pPainter = new QPainter(this);
-    m_bIsPainterShape = false;
 }
 
 ImgProcessArea::~ImgProcessArea()
@@ -24,9 +25,14 @@ ImgProcessArea::~ImgProcessArea()
     delete ui;
 }
 
-void init(const QPixmap& pixMap)
+void ImgProcessArea::init(const QPixmap& pixMap)
 {
 
+}
+
+void ImgProcessArea::setShapeType(ShapeType shapeType)
+{
+    m_pShapeType = shapeType;
 }
 
 void ImgProcessArea::mousePressEvent(QMouseEvent *pMouseEvent)
@@ -38,17 +44,16 @@ void ImgProcessArea::mousePressEvent(QMouseEvent *pMouseEvent)
 void ImgProcessArea::mouseReleaseEvent(QMouseEvent *pMouseEvent)
 {
     //m_bIsPainterShape = false;
+    //m_ptMousePress
 }
 
 void ImgProcessArea::mouseMoveEvent(QMouseEvent *pMouseEvent)
 {
     m_ptCurrentPos = pMouseEvent->pos();
 
-
-
 }
-
-void ImgProcessArea::paintEvent(QPaintEvent *)
+// 
+void ImgProcessArea::paintEvent(QPaintEvent *event)
 {
     if(m_bIsPainterShape)
     {
@@ -64,4 +69,5 @@ void ImgProcessArea::paintEvent(QPaintEvent *)
         m_pPainter->end();
     }
     update();
+ //   QWidget::paintEvent(event);
 }

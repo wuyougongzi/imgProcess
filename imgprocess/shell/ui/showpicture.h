@@ -32,6 +32,12 @@ private slots:
     void onBtnZoomClicked();
     void onBtnCutClicked();
     void onBtnTransprentClicked();
+    void onBtnEclipsClicked();
+    void onBtnLineClicked();
+    void onBtnPixmapClicked();
+    void onBtnPloyLineClicked();
+    void onBtnPointClicked();
+    void onBtnRectangle();
 
 private:
    Ui::showPicture  *ui;

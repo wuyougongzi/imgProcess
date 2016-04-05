@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
     fileMenu->addAction(openFileAction);
     */
     connect(ui->actionHelpOnline, SIGNAL(triggered()), this, SLOT(helpOnlineAction()));
+    //todo:先确定这里是状态栏
+    ui->statusBar->showMessage(QString("statusbar"), 10 * 1000);
 }
 
 MainWindow::~MainWindow()

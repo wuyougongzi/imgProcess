@@ -74,3 +74,32 @@ QPixmap ShowPicture::getProcessedPixmap()
     return m_processedPixmap;
 }
 
+void ShowPicture::onBtnEclipsClicked()
+{
+    ui->imgprocessarea->setShapeType(SHAPEECLIPSE);
+}
+
+void ShowPicture::onBtnLineClicked()
+{
+    ui->imgprocessarea->setShapeType(SHAPELINE);
+}
+
+void ShowPicture::onBtnPixmapClicked()
+{
+    ui->imgprocessarea->setShapeType(SHAPEPIXMAP);
+}
+
+void ShowPicture::onBtnPloyLineClicked()
+{
+    //todo:
+}
+
+void ShowPicture::onBtnPointClicked()
+{
+    ui->imgprocessarea->setShapeType(SHAPEPOINTS);
+}
+
+void ShowPicture::onBtnRectangle()
+{
+    //todo:
+}
