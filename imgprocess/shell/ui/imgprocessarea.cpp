@@ -61,11 +61,33 @@ void ImgProcessArea::paintEvent(QPaintEvent *event)
         m_pPainter->begin(this);
         m_pPainter->setPen(QPen(Qt::red, 2, Qt::SolidLine));         //设置画笔形式 
         // m_pPainter->setBrush(QBrush(Qt::red, Qt::SolidPattern));    //设置画刷形式 
-        int lefttopPosX = m_ptCurrentPos.x() < m_ptMousePress.x() ? m_ptCurrentPos.x() : m_ptMousePress.x();
-        int lefttopPosY = m_ptCurrentPos.y() < m_ptMousePress.y() ? m_ptCurrentPos.y() : m_ptMousePress.y();
-        int width = abs(m_ptCurrentPos.x() - m_ptMousePress.x());
-        int height = abs(m_ptCurrentPos.y() - m_ptMousePress.y());
-        m_pPainter->drawRect(lefttopPosX, lefttopPosY, width, height);
+        switch(m_pShapeType)
+        {
+        case SHAPERECT:
+            {
+                int lefttopPosX = m_ptCurrentPos.x() < m_ptMousePress.x() ? m_ptCurrentPos.x() : m_ptMousePress.x();
+                int lefttopPosY = m_ptCurrentPos.y() < m_ptMousePress.y() ? m_ptCurrentPos.y() : m_ptMousePress.y();
+                int width = abs(m_ptCurrentPos.x() - m_ptMousePress.x());
+                int height = abs(m_ptCurrentPos.y() - m_ptMousePress.y());
+                m_pPainter->drawRect(lefttopPosX, lefttopPosY, width, height);
+            }
+            break;
+        case SHAPELINE:
+            {
+                m_pPainter->drawLine(m_ptMousePress, m_ptCurrentPos);
+            }
+            break;
+        case SHAPEECLIPSE:
+            {
+                QPoint centerPt = (m_ptMousePress + m_ptCurrentPos) / 2;
+                int rx = abs(m_ptCurrentPos.x() - m_ptMousePress.x()) / 2;
+                int ry = abs(m_ptCurrentPos.y() - m_ptMousePress.y()) / 2;
+                m_pPainter->drawEllipse(centerPt, rx, ry);
+            }
+            break;
+        }
+        
+        
         m_pPainter->end();
     }
     update();

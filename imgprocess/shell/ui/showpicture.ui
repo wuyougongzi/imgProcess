@@ -73,11 +73,14 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>481</width>
+     <width>371</width>
      <height>41</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
     <property name="topMargin">
      <number>0</number>
     </property>
@@ -156,6 +159,19 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QPushButton" name="btncolorsetting">
+   <property name="geometry">
+    <rect>
+     <x>390</x>
+     <y>20</y>
+     <width>91</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>ColorSetting</string>
+   </property>
   </widget>
  </widget>
  <customwidgets>

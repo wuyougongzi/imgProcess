@@ -1,6 +1,7 @@
 ﻿#include "showpicture.h"
 #include "ui_showpicture.h"
 #include <QMessageBox>
+#include <QColorDialog>
 #include "screenshot/screenimg.h"
 
 ShowPicture::ShowPicture(QWidget *parent) :
@@ -31,6 +32,23 @@ ShowPicture::ShowPicture(QWidget *parent) :
 
     //todo 绘图区就是imgprocessarea的大小，绘图的事件都在里面操作，
     //需要区分位置，好像设置了border-image失效。需要区分出来。
+    //this->add
+    //工具栏测试
+    //按照功能分级分别加到不同的位置
+//     QToolBar *pToolBar = new QToolBar(NULL);
+//     pToolBar->addAction(QString("Rectangle"));
+//     pToolBar->show();
+    //this->
+    // this->addToolBar(Qt::TopToolBarArea, pToolBar);
+    connect(ui->btnLine, SIGNAL(clicked()), this, SLOT(onBtnLineClicked()));
+    connect(ui->btnEclipse, SIGNAL(clicked()), this, SLOT(onBtnEclipsClicked()));
+    connect(ui->btnRectangle, SIGNAL(clicked()), this, SLOT(onBtnRectangleClicked()));
+
+    connect(ui->btncolorsetting, SIGNAL(clicked()), this, SLOT(onBtnColorSettingClicked()));
+}
+
+ShowPicture::~ShowPicture()
+{
 }
 
 void ShowPicture::init()
@@ -74,6 +92,13 @@ QPixmap ShowPicture::getProcessedPixmap()
     return m_processedPixmap;
 }
 
+void ShowPicture::onBtnColorSettingClicked()
+{
+    QColorDialog* colorDlg = new QColorDialog;
+    colorDlg->exec();
+    QColor selectColor = colorDlg->selectedColor();
+}
+
 void ShowPicture::onBtnEclipsClicked()
 {
     ui->imgprocessarea->setShapeType(SHAPEECLIPSE);
@@ -99,7 +124,7 @@ void ShowPicture::onBtnPointClicked()
     ui->imgprocessarea->setShapeType(SHAPEPOINTS);
 }
 
-void ShowPicture::onBtnRectangle()
+void ShowPicture::onBtnRectangleClicked()
 {
-    //todo:
+    ui->imgprocessarea->setShapeType(SHAPERECT);
 }

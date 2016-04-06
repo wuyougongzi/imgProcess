@@ -12,7 +12,7 @@ class ShowPicture : public QWidget
     Q_OBJECT
 public:
     explicit ShowPicture(QWidget *parent = 0);
-
+    ~ShowPicture();
 signals:
 
 public:
@@ -28,6 +28,7 @@ public:
 //     virtual void paintEvent(QPaintEvent *)              override;
     
 private slots:
+    void onBtnColorSettingClicked();
     void onBtnEnLargeClicked();
     void onBtnZoomClicked();
     void onBtnCutClicked();
@@ -37,7 +38,7 @@ private slots:
     void onBtnPixmapClicked();
     void onBtnPloyLineClicked();
     void onBtnPointClicked();
-    void onBtnRectangle();
+    void onBtnRectangleClicked();
 
 private:
    Ui::showPicture  *ui;
