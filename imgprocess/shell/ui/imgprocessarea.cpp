@@ -45,6 +45,8 @@ void ImgProcessArea::mouseReleaseEvent(QMouseEvent *pMouseEvent)
 {
     //m_bIsPainterShape = false;
     //m_ptMousePress
+    //update();
+    m_pShapeType = SHAPENONE;
 }
 
 void ImgProcessArea::mouseMoveEvent(QMouseEvent *pMouseEvent)
@@ -90,6 +92,6 @@ void ImgProcessArea::paintEvent(QPaintEvent *event)
         
         m_pPainter->end();
     }
-    update();
- //   QWidget::paintEvent(event);
+    //update();
+   // QWidget::paintEvent(event);
 }

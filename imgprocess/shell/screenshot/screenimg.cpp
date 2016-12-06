@@ -11,8 +11,10 @@
 #include <QApplication>
 #include <QBrush>
 
-ScreenShotImgDlg::ScreenShotImgDlg(QDialog *parent)
-	: QDialog(parent)
+#include "screentoolbar.h"
+
+ScreenShotImgDlg::ScreenShotImgDlg(QDialog *parent/* = 0*/) 
+    : QDialog(parent)
 {
 	/*
 	 * 初始化截图屏幕
@@ -44,6 +46,7 @@ ScreenShotImgDlg::ScreenShotImgDlg(QDialog *parent)
 	setAutoFillBackground(true);
 	setPalette(m_palette);
 	showFullScreen();
+    //设置鼠标可用
 	setMouseTracking(true);
 	m_palette.setBrush(QPalette::Background, QBrush(m_fullScreenFogImg));
 	setAutoFillBackground(true);
@@ -58,13 +61,19 @@ ScreenShotImgDlg::ScreenShotImgDlg(QDialog *parent)
 	//初始化类计算
 	m_pScreenJudge = QSharedPointer<ScreenJudge>(new ScreenJudge(m_iWidth - 1, m_iHeight - 1, m_zoomPoint));
 	
+    m_pToolBar = new ScreenToolBar(this);
+	connect(m_pToolBar, SIGNAL(selectRect()), this, SLOT(onBtnDrawRectangle()));
+	connect(m_pToolBar, SIGNAL(selectSave()), this, SLOT(onBtnSaveClicked()));
+	connect(m_pToolBar, SIGNAL(selectCancal()), this, SLOT(onBtnCancle()));
+	connect(m_pToolBar, SIGNAL(selectFinish()), this, SLOT(onBtnSureToClipboardClicked()));
     //矩形画框
-    m_pBtnRectangle.setIcon(QIcon(tr(":/screenshot/image/screenshot/srceenshot_rectangle.png")));
-    m_pBtnRectangle.setIconSize(QSize(30,30));
-    m_pBtnRectangle.setWindowFlags(Qt::FramelessWindowHint);
-    m_pBtnRectangle.setAutoRaise(true);
-    m_pBtnRectangle.setToolButtonStyle(Qt::ToolButtonIconOnly);
-    connect(&m_pBtnRectangle, SIGNAL(clicked()), this, SLOT(onBtnDrawRectangle()));
+    m_pBtnRectangle = new QToolButton(this);
+    m_pBtnRectangle->setIcon(QIcon(tr(":/screenshot/image/screenshot/srceenshot_rectangle.png")));
+    m_pBtnRectangle->setIconSize(QSize(30,30));
+    m_pBtnRectangle->setWindowFlags(Qt::FramelessWindowHint);
+    m_pBtnRectangle->setAutoRaise(true);
+    m_pBtnRectangle->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    connect(m_pBtnRectangle, SIGNAL(clicked()), this, SLOT(onBtnDrawRectangle()));
 
     //保存
     m_pBtnSave.setIcon(QIcon(tr(":/screenshot/image/screenshot/screenshot_save.png")));
@@ -422,12 +431,10 @@ void ScreenShotImgDlg::onBtnSaveClicked()
 
 void ScreenShotImgDlg::onBtnDrawRectangle()
 {
-    //todo:
     //设置当前pen为绘制矩形框的
     m_bIsSelectDrawShape = true;
     m_bIsdraging = false;
     m_CurrentDrawType = DRAWTYPERECTANGLE;
-
 }
 
 void ScreenShotImgDlg::onBtnSureToClipboardClicked()
@@ -440,7 +447,7 @@ void ScreenShotImgDlg::onBtnSureToClipboardClicked()
 
 void ScreenShotImgDlg::onBtnCancle()
 {
-    m_pBtnRectangle.close();
+    m_pBtnRectangle->close();
 	m_pBtnSave.close();
 	m_pBtnSure.close();
 	m_pBtnCancle.close();
@@ -450,6 +457,13 @@ void ScreenShotImgDlg::onBtnCancle()
 
 void ScreenShotImgDlg::paintEvent(QPaintEvent *)
 {
+	/*
+	1 下面m_bisdrawing,m_bIsdraging，m_bIszooming，m_bIsSelectDrawShape
+	  是页面绘制状态机标志
+	*/
+
+	//todo: 可拉伸的点变成拖动，功能失效，需要重新查看调整。
+
 	if (m_bIsdrawing)
     {
 		m_drawRect = m_pScreenJudge->drawRect();
@@ -608,36 +622,23 @@ void ScreenShotImgDlg::paintEvent(QPaintEvent *)
 		//button
 		if (m_pScreenJudge->btnJudge() == DRAGJUDGE_INSIDE)
 		{
-            m_pBtnRectangle.setGeometry(m_pScreenJudge->eastNorthPoint().x() - 120, m_pScreenJudge->eastSouthPoint().y(), 30, 30);
-            m_pBtnRectangle.show();
-			m_pBtnSave.setGeometry(m_pScreenJudge->eastNorthPoint().x() - 90, m_pScreenJudge->eastNorthPoint().y(), 30, 30);
-			m_pBtnSave.show();
-			m_pBtnSure.setGeometry(m_pScreenJudge->eastNorthPoint().x() - 60, m_pScreenJudge->eastNorthPoint().y(), 30, 30);
-			m_pBtnSure.show();
-			m_pBtnCancle.setGeometry(m_pScreenJudge->eastNorthPoint().x() - 30, m_pScreenJudge->eastNorthPoint().y(), 30, 30);
-			m_pBtnCancle.show();
+			m_pToolBar->setGeometry(m_pScreenJudge->eastNorthPoint().x() - m_pToolBar->width(),
+									m_pScreenJudge->eastNorthPoint().y(), 
+									m_pToolBar->width(), 
+									m_pToolBar->height());
+			m_pToolBar->show();
 		}
 		else if (m_pScreenJudge->btnJudge() == DRAGJUDGE_SOUTH)
 		{
-            m_pBtnRectangle.setGeometry(m_pScreenJudge->eastSouthPoint().x() - 120, m_pScreenJudge->eastSouthPoint().y(), 30, 30);
-            m_pBtnRectangle.show();
-			m_pBtnSave.setGeometry(m_pScreenJudge->eastSouthPoint().x() - 90, m_pScreenJudge->eastSouthPoint().y(), 30, 30);
-			m_pBtnSave.show();
-			m_pBtnSure.setGeometry(m_pScreenJudge->eastSouthPoint().x() - 60, m_pScreenJudge->eastSouthPoint().y(), 30, 30);
-			m_pBtnSure.show();
-			m_pBtnCancle.setGeometry(m_pScreenJudge->eastSouthPoint().x() - 30, m_pScreenJudge->eastSouthPoint().y(), 30, 30);
-			m_pBtnCancle.show();
+            m_pToolBar->setGeometry(m_pScreenJudge->eastSouthPoint().x() - m_pToolBar->width(),
+									m_pScreenJudge->eastSouthPoint().y(), m_pToolBar->width(), m_pToolBar->height());
+            m_pToolBar->show();
 		}
 		else if (m_pScreenJudge->btnJudge() == DRAGJUDGE_NORTH)
 		{
-            m_pBtnRectangle.setGeometry(m_pScreenJudge->eastNorthPoint().x() - 120, m_pScreenJudge->eastNorthPoint().y(), 30, 30);
-            m_pBtnRectangle.show();
-			m_pBtnSave.setGeometry(m_pScreenJudge->eastNorthPoint().x() - 90, m_pScreenJudge->eastNorthPoint().y() - 30, 30, 30);
-			m_pBtnSave.show();
-			m_pBtnSure.setGeometry(m_pScreenJudge->eastNorthPoint().x() - 60, m_pScreenJudge->eastNorthPoint().y() - 30, 30, 30);
-			m_pBtnSure.show();
-			m_pBtnCancle.setGeometry(m_pScreenJudge->eastNorthPoint().x() - 30, m_pScreenJudge->eastNorthPoint().y() - 30, 30, 30);
-			m_pBtnCancle.show();
+			m_pToolBar->setGeometry(m_pScreenJudge->eastSouthPoint().x() - m_pToolBar->width(),
+				m_pScreenJudge->eastSouthPoint().y(), m_pToolBar->width(), m_pToolBar->height());
+			m_pToolBar->show();
 		}
 	}
 

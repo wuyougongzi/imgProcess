@@ -11,6 +11,7 @@ class ImgProcessArea;
 
 enum ShapeType
 {
+    SHAPENONE,
     SHAPELINE,
     SHAPEPOINTS,
     SHAPEPLOYLINE,

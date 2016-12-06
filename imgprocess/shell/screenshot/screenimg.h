@@ -29,6 +29,8 @@ enum DrawType
     DRAWTYPETEXT,
 };
 
+class ScreenToolBar;
+
 class ScreenShotImgDlg : public QDialog
 {
     Q_OBJECT
@@ -90,7 +92,7 @@ private:
     DragJudge       m_dragJudge;
 
     //¹¤¾ßÀ¸ ¾ØÐÎ
-    QToolButton     m_pBtnRectangle;
+    QToolButton     *m_pBtnRectangle;
     QToolButton     m_pBtnSave;
     QToolButton     m_pBtnSure;
     QToolButton     m_pBtnCancle;
@@ -100,6 +102,8 @@ private:
     DrawType        m_CurrentDrawType;
     QPoint          m_ptMousePress;
     QPoint          m_ptCurrentPos;
+
+    ScreenToolBar   *m_pToolBar;
 
 };
 

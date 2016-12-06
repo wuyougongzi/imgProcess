@@ -11,5 +11,9 @@
 		<file>image/screenshot/screenshot_yes.png</file>
 		<file>image/screenshot/screenshot_no.png</file>
 		<file>image/screenshot/srceenshot_rectangle.png</file>
+		<file>image/screenshot/ok.png</file>
+		<file>image/screenshot/rect.png</file>
+		<file>image/screenshot/save.png</file>
+		<file>image/screenshot/undo.png</file>
     </qresource>
 </RCC>
