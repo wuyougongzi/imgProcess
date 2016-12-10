@@ -18,16 +18,45 @@
 #include <QString>
 #include <QFileDialog>
 #include <QToolButton>
+#include <QStack>
 
 //当前绘制的类型
-enum DrawType
+enum DrawShapeType
 {
-    DRAWTYPENONE = -1,
+    DRAWTYPENONE = 0,
     DRAWTYPERECTANGLE,
     DRAWTYPEELLIPSE,
     DRAWTYPEARROW,
     DRAWTYPETEXT,
 };
+
+struct ShapeInfo
+{
+	DrawShapeType	type;
+	QPoint		ptLeftTop;
+	QPoint		ptRightBottom;
+	QPoint		ptCenter;	//画圆形的可能需要,不知道能不能用上
+	QColor		brushColor;	//填充颜色，不知道能不能用到
+	QColor		penColor;	//边框颜色
+	int			penWeight;	//边框粗细
+	ShapeInfo()
+	{
+		type = DRAWTYPENONE;
+		penWeight = 1;
+		penColor.setRgb(255, 0, 0);
+		brushColor.setRgb(255, 0, 0);
+	}
+};
+
+//paint 状态机
+enum DrawStatus
+{
+	DrawScreenNone = 0,
+	DrawScreenArea,			//绘制需要捕捉的屏幕位置
+	DrawScreenDragPos,		//拖动区域时绘制
+	DrawScreenDragSize,		//拖动大小时绘制
+};
+
 
 class ScreenToolBar;
 
@@ -55,26 +84,38 @@ private slots:
     void onBtnCancle();
 
 signals:
-        void onScreenImgClose();
-        void onSaveSucessed(const QString& strFilePath);
+    void onScreenImgClose();
+    void onSaveSucessed(const QString& strFilePath);
+	
+private:
+	void drawScreenArea(const QRect& rect);
+	void drawRectDragPoint(const QRect& rect);			//绘制屏幕区域可拖动的点
+	void drawZoomArea(const QPoint& pt);				//绘制放大框
+	QPoint getLeftTopPoint(const QPoint &pt1, const QPoint &pt2);
+	QPoint getRightBottomPoint(const QPoint &pt1, const QPoint &pt2);
+	QRect getDrawRect(const QPoint &pt1, const QPoint &pt2);
+	void showToolBar(const QPoint &drawAreaRightBottomPt);
 
 private:
     //类处理
     QSharedPointer<ScreenJudge> m_pScreenJudge;
 
     //屏幕处理
-    int             m_iWidth;
-    int             m_iHeight;
-    QPixmap         m_fullScreenPix;
-    QImage          m_fullScreenFogImg;
-    QScreen         *m_pScreen;
-    QPalette        m_palette;
+    int             m_iWidth;			//整个屏幕的宽度
+    int             m_iHeight;			//屏幕的高度
+    QPixmap         m_fullScreenPix;	//截取的整个屏幕
+    QImage          m_fullScreenFogImg;	//由上面的转换而来
+	QPoint          m_ptPressedPos;		//绘制截屏区域使用的点
+	QPoint          m_ptReleasedPos;
+	QPoint			m_ptCurrentPos;
+	bool			m_bMousePressed;	//用于绘制一些中间状态
 
+	QPalette		m_palette;
     //draw框
-    bool             m_bIsdrawing;
-    QPixmap          m_drawPix;
-    QRect            m_drawRect;
-
+    bool            m_bIsdrawing;		
+	bool			m_bFirst;
+    QPixmap         m_drawPix;			//截屏图片，和下面的区域大小对应
+    QRect           m_drawRect;			//截屏区域
     //zoom框
     bool            m_bIszooming;
     QPoint          m_zoomPoint;
@@ -86,25 +127,23 @@ private:
 
     //drag框
     bool            m_bIsdraging;
-    bool            m_bFirst;
-    QPoint          m_dragPoint;
+    QPoint          m_ptDragStartPos;
     QPoint          m_movePoint;
     DragJudge       m_dragJudge;
 
-    //工具栏 矩形
-    QToolButton     *m_pBtnRectangle;
-    QToolButton     m_pBtnSave;
-    QToolButton     m_pBtnSure;
-    QToolButton     m_pBtnCancle;
-
     //当前选中绘制类型
     bool            m_bIsSelectDrawShape;    //标志当前是否有选中某种形状，还是拖动行为
-    DrawType        m_CurrentDrawType;
-    QPoint          m_ptMousePress;
-    QPoint          m_ptCurrentPos;
+    DrawShapeType		m_shapeType;
+    QPoint			m_ptShapeStartPos;
+	QPoint			m_ptShapeEndPos;
+	QPoint			m_ptShapeCurrentPos;
 
-    ScreenToolBar   *m_pToolBar;
+	DrawStatus		m_drawType;
+    ScreenToolBar	*m_pToolBar;			//工具栏
 
+	ShapeInfo			m_currentShapeInfo;		//当前正在画的图形
+	QStack<ShapeInfo>	m_shapeStack;			//采用stack，为了支持后面的撤销操作
+	//QVector<QRect>	m_dragRect;				//可拖动变大小的几个rect区域,简化计算
 };
 
 #endif // SCREENIMG_H

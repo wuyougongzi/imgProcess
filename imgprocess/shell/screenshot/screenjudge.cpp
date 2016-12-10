@@ -134,21 +134,21 @@ void ScreenJudge::setDragPoint()
 DragJudge ScreenJudge::dragJudge(QPoint pos)
 {
     if(pos == m_eastNorthPoint)
-        return DRAGJUDGE_EASTNORTH;
+        return DRAGJUDGE_RIGHTUP;
     else if(pos == m_eastSouthPoint)
-        return DRAGJUDGE_EASTSOUTH;
+        return DRAGJUDGE_RIGHTDOWN;
     else if(pos == m_westNorthPoint)
-        return DRAGJUDGE_WESTNORTH;
+        return DRAGJUDGE_LEFTUP;
     else if(pos == m_westSouthPoint)
-        return DRAGJUDGE_WESTSOUTH;
+        return DRAGJUDGE_LEFTDOWN;
     else if(pos.x() == m_westNorthPoint.x())
-        return DRAGJUDGE_WEST;
+        return DRAGJUDGE_RIGHT;
     else if(pos.y() == m_westNorthPoint.y())
-        return DRAGJUDGE_NORTH;
+        return DRAGJUDGE_UP;
     else if(pos.x() == m_eastSouthPoint.x())
-        return DRAGJUDGE_EAST;
+        return DRAGJUDGE_LEFT;
     else if(pos.y() == m_eastSouthPoint.y())
-        return DRAGJUDGE_SOUTH;
+        return DRAGJUDGE_DOWN;
 
     return DRAGJUDGE_NULL;
 }
@@ -262,11 +262,11 @@ DragJudge ScreenJudge::btnJudge()
     if(m_eastNorthPoint.y() < 30 && m_eastSouthPoint.y() +40 > m_iHeight)
         return DRAGJUDGE_INSIDE;
     else if(m_eastNorthPoint.y() < 30)
-        return DRAGJUDGE_SOUTH;
+        return DRAGJUDGE_DOWN;
     else if(m_eastSouthPoint.y() +40 > m_iHeight)
-        return DRAGJUDGE_NORTH;
+        return DRAGJUDGE_UP;
 
-    return DRAGJUDGE_SOUTH;
+    return DRAGJUDGE_DOWN;
 }
 
 

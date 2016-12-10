@@ -19,12 +19,12 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    StartAnimal* startAnimal = new StartAnimal();
-    startAnimal->startAnimal();
+    //StartAnimal* startAnimal = new StartAnimal();
+    //startAnimal->startAnimal();
     MainWindow w;
     w.show();
 
-    startAnimal->finishAnimal(w);
+    //startAnimal->finishAnimal(w);
     return a.exec();
 }
 

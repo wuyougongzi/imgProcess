@@ -22,6 +22,8 @@ set(IMGPRROCESS_HEADERS
 	shell/ui/onlineexplorer.h
 	shell/screenshot/screenimg.h
 	shell/screenshot/screenjudge.h
+	shell/screenshot/screentoolbar.h
+	shell/screenshot/screenarearect.h
 	)
 	
 #设置ui文件
@@ -32,6 +34,7 @@ set(IMGPROCESS_UIS
 	shell/ui/imgprocessarea.ui
 	shell/ui/hotkeytabledialog.ui
 	shell/ui/onlineexplorer.ui
+	shell/screenshot/screentoolbar.ui
 	)
 
 #设置qrc文件
@@ -51,6 +54,8 @@ set(IMGPROCESS_SRCS
 	shell/ui/onlineexplorer.cpp
 	shell/screenshot/screenimg.cpp
 	shell/screenshot/screenjudge.cpp
+	shell/screenshot/screentoolbar.cpp
+	shell/screenshot/screenarearect.cpp
 	shell/utility/winsort.h
 	shell/resource/imgprocess.rc
 	)

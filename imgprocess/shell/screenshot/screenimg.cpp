@@ -10,11 +10,19 @@
 #include <QRubberBand>
 #include <QApplication>
 #include <QBrush>
-
 #include "screentoolbar.h"
+
+#define DRAGPOINTWIDTH 5
 
 ScreenShotImgDlg::ScreenShotImgDlg(QDialog *parent/* = 0*/) 
     : QDialog(parent)
+	, m_bFirst(true)
+	, m_bIsdrawing(false)
+	, m_drawType(DrawScreenNone)
+	, m_dragJudge(DRAGJUDGE_NULL)
+	, m_shapeType(DRAWTYPENONE)
+	, m_bIsdraging(false)
+	, m_bMousePressed(false)
 {
 	/*
 	 * 初始化截图屏幕
@@ -42,6 +50,7 @@ ScreenShotImgDlg::ScreenShotImgDlg(QDialog *parent/* = 0*/)
 		}
 	}
 	//设为新窗口的背景图片以便获取
+	
 	m_palette.setBrush(QPalette::Background, QBrush(QPixmap(m_fullScreenPix)));
 	setAutoFillBackground(true);
 	setPalette(m_palette);
@@ -53,11 +62,10 @@ ScreenShotImgDlg::ScreenShotImgDlg(QDialog *parent/* = 0*/)
 	setPalette(m_palette);
 
 	//初始化,表示整个程序开始运作。
-	m_bFirst = true;
-	m_bIsdrawing = false;
+	//m_bIsdrawing = false;
 	m_bIszooming = true;
 	m_zoomPoint = QCursor::pos();
-	m_bIsdraging = false;
+	
 	//初始化类计算
 	m_pScreenJudge = QSharedPointer<ScreenJudge>(new ScreenJudge(m_iWidth - 1, m_iHeight - 1, m_zoomPoint));
 	
@@ -66,39 +74,11 @@ ScreenShotImgDlg::ScreenShotImgDlg(QDialog *parent/* = 0*/)
 	connect(m_pToolBar, SIGNAL(selectSave()), this, SLOT(onBtnSaveClicked()));
 	connect(m_pToolBar, SIGNAL(selectCancal()), this, SLOT(onBtnCancle()));
 	connect(m_pToolBar, SIGNAL(selectFinish()), this, SLOT(onBtnSureToClipboardClicked()));
-    //矩形画框
-    m_pBtnRectangle = new QToolButton(this);
-    m_pBtnRectangle->setIcon(QIcon(tr(":/screenshot/image/screenshot/srceenshot_rectangle.png")));
-    m_pBtnRectangle->setIconSize(QSize(30,30));
-    m_pBtnRectangle->setWindowFlags(Qt::FramelessWindowHint);
-    m_pBtnRectangle->setAutoRaise(true);
-    m_pBtnRectangle->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    connect(m_pBtnRectangle, SIGNAL(clicked()), this, SLOT(onBtnDrawRectangle()));
-
-    //保存
-    m_pBtnSave.setIcon(QIcon(tr(":/screenshot/image/screenshot/screenshot_save.png")));
-    m_pBtnSave.setIconSize(QSize(30, 30));
-    m_pBtnSave.setWindowFlags(Qt::FramelessWindowHint);
-    m_pBtnSave.setAutoRaise(true);
-    m_pBtnSave.setToolButtonStyle(Qt::ToolButtonIconOnly);
-    connect(&m_pBtnSave, SIGNAL(clicked()), this, SLOT(onBtnSaveClicked()));
-    //确认
-    m_pBtnSure.setIcon(QIcon(tr(":/screenshot/image/screenshot/screenshot_yes.png")));
-    m_pBtnSure.setIconSize(QSize(30, 30));
-    m_pBtnSure.setWindowFlags(Qt::FramelessWindowHint);
-    m_pBtnSure.setAutoRaise(true);
-    m_pBtnSure.setToolButtonStyle(Qt::ToolButtonIconOnly);
-    connect(&m_pBtnSure, SIGNAL(clicked()), this, SLOT(onBtnSureToClipboardClicked()));
-    //取消
-    m_pBtnCancle.setIcon(QIcon(tr(":/screenshot/image/screenshot/screenshot_no.png")));
-    m_pBtnCancle.setIconSize(QSize(30, 30));
-    m_pBtnCancle.setWindowFlags(Qt::FramelessWindowHint);
-    m_pBtnCancle.setAutoRaise(true);
-    m_pBtnCancle.setToolButtonStyle(Qt::ToolButtonIconOnly);
-    connect(&m_pBtnCancle, SIGNAL(clicked()), this, SLOT(onBtnCancle()));
 
     m_bIsSelectDrawShape = false;
-    m_CurrentDrawType = DRAWTYPENONE;
+   
+
+	//m_dragRect.resize(8);
 }
 
 ScreenShotImgDlg::~ScreenShotImgDlg()
@@ -107,24 +87,83 @@ ScreenShotImgDlg::~ScreenShotImgDlg()
 
 void ScreenShotImgDlg::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton)
-    {
-        if (m_bFirst)
-        {
-            m_bFirst = false;
-            m_bIsdrawing = true;
-        }
-        if (m_bIsdrawing)
-        {
-            m_pScreenJudge->setStartPoint(event->pos());
-        }
-        if (m_bIsdraging)
-        {
+    if (event->button() != Qt::LeftButton)
+		return;
+	
+	m_bMousePressed = true;
+
+	//第一种状态
+	if(m_drawType == DrawScreenNone)
+	{
+		m_ptPressedPos = event->pos();
+		//m_drawType = DrawScreenDragSize;
+	}
+	//第二种状态
+	if(m_drawType == DrawScreenArea)
+	{
+		m_ptDragStartPos = event->pos();
+		//两种情况，鼠标在点上，或者边框线上，调整大小
+		//鼠标不在以上区域且鼠标在截屏区域内，调整位置
+		//判断第一种情况,鼠标在线上
+		//简化问题，只判断四个方向的拖动情况
+		if(m_ptDragStartPos.x() == m_drawRect.left())
+		{
+			this->setCursor(Qt::SizeHorCursor);
+			m_dragJudge = DRAGJUDGE_LEFT;
+			m_drawType = DrawScreenDragSize;
+		}
+		else if(m_ptDragStartPos.x() == m_drawRect.right())
+		{
+			this->setCursor(Qt::SizeHorCursor);
+			m_dragJudge = DRAGJUDGE_RIGHT;
+			m_drawType = DrawScreenDragSize;
+		}
+		else if(m_ptDragStartPos.y() == m_drawRect.top())
+		{
+			this->setCursor(Qt::SizeVerCursor);
+			m_dragJudge = DRAGJUDGE_UP;
+			m_drawType = DrawScreenDragSize;
+
+		}
+		else if(m_ptDragStartPos.y() == m_drawRect.bottom())
+		{
+			this->setCursor(Qt::SizeVerCursor);
+			m_dragJudge = DRAGJUDGE_DOWN;
+			m_drawType = DrawScreenDragSize;
+
+		}
+		else if(m_drawRect.contains(m_ptDragStartPos))
+		{
+			if(m_shapeType == DRAWTYPENONE)
+			{
+				this->setCursor(Qt::SizeAllCursor);
+				m_dragJudge = DRAGJUDGE_INSIDE;
+				m_drawType = DrawScreenDragPos;
+			}
+			else
+			{
+				m_ptShapeStartPos = event->pos();
+				m_currentShapeInfo.type = m_shapeType;
+				//m_currentShapeInfo.
+			}
+		}
+	}
+	//if(m_bFirst)
+	//{
+	//	m_DrawType = DrawScreenArea;
+	//	return;
+	//}
+	/*
+	m_pScreenJudge->setStartPoint(event->pos());
+	if (m_bIsdraging)
+	{
+	*/
             /*
                 1 位置在绘图区域内
                 2 位置在线上
                 3 位置在外面
             */
+	/*
             if (m_pScreenJudge->isInDrawArea(event->pos()))
             {
                 this->setCursor(Qt::SizeAllCursor);
@@ -202,15 +241,43 @@ void ScreenShotImgDlg::mousePressEvent(QMouseEvent *event)
                 m_dragJudge = DRAGJUDGE_OUTSIDE;
             }
         }
+		*/
 }
 
-    //自己添加的
-    m_ptMousePress = event->pos();
-
-}
 void ScreenShotImgDlg::mouseMoveEvent(QMouseEvent *event)
 {
-    if (m_bIsdrawing)
+	m_ptCurrentPos = event->pos();
+	m_ptShapeCurrentPos = event->pos();
+	if(m_ptCurrentPos.x() == m_drawRect.left())
+	{
+		this->setCursor(Qt::SizeHorCursor);
+		//m_dragJudge = DRAGJUDGE_LEFT;
+	}
+	else if(m_ptCurrentPos.x() == m_drawRect.right())
+	{
+		this->setCursor(Qt::SizeHorCursor);
+		//m_dragJudge = DRAGJUDGE_RIGHT;
+	}
+	else if(m_ptCurrentPos.y() == m_drawRect.top())
+	{
+		this->setCursor(Qt::SizeVerCursor);
+		//m_dragJudge = DRAGJUDGE_UP;
+	}
+	else if(m_ptCurrentPos.y() == m_drawRect.bottom())
+	{
+		this->setCursor(Qt::SizeVerCursor);
+		//m_dragJudge = DRAGJUDGE_DOWN;
+	}
+	else if(m_drawRect.contains(m_ptCurrentPos))
+	{
+		if(m_shapeType == DRAWTYPENONE)
+			this->setCursor(Qt::SizeAllCursor);
+		//m_dragJudge = DRAGJUDGE_INSIDE;
+	}
+	else {
+		this->setCursor(Qt::ArrowCursor);
+	}
+   /* if (m_bIsdrawing)
     {
         if (event->buttons()&Qt::LeftButton) //鼠标左键按下的同时移动鼠标
         {
@@ -304,14 +371,71 @@ void ScreenShotImgDlg::mouseMoveEvent(QMouseEvent *event)
 			m_pScreenJudge->setEndPoint(event->pos());
 		}
 	}
-    m_ptCurrentPos = event->pos();
+	*/
 	update();
 }
 
 void ScreenShotImgDlg::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton)
-    {
+    if (event->button() != Qt::LeftButton)
+		return;
+
+	m_bMousePressed = false;
+	m_ptShapeEndPos = event->pos();
+	if(m_drawType == DrawScreenNone)
+	{
+		m_ptReleasedPos = event->pos();
+
+	//if(m_drawType == DrawScreenNone)
+		m_drawType = DrawScreenArea;
+
+	}
+	else if(m_drawType == DrawScreenArea)
+	{
+		if(m_shapeType != DRAWTYPENONE)
+		{
+			m_currentShapeInfo.type = m_shapeType;
+			m_currentShapeInfo.ptLeftTop = getLeftTopPoint(m_ptShapeStartPos, m_ptShapeCurrentPos);
+			m_currentShapeInfo.ptRightBottom = getRightBottomPoint(m_ptShapeStartPos, m_ptShapeCurrentPos);
+			m_shapeStack.push(m_currentShapeInfo);
+		}
+	}
+	else if(m_drawType == DrawScreenDragPos)
+	{
+		m_ptPressedPos = m_ptPressedPos + (m_ptCurrentPos - m_ptDragStartPos);
+		m_ptReleasedPos = m_ptReleasedPos + (m_ptCurrentPos - m_ptDragStartPos);
+		m_drawType = DrawScreenArea;
+	}
+	else if(m_drawType == DrawScreenDragSize)
+	{
+		if(m_dragJudge == DRAGJUDGE_LEFT)
+		{
+			QPoint movePressed = m_ptPressedPos + (m_ptCurrentPos - m_ptDragStartPos);
+			QPoint moveReleased = m_ptReleasedPos + (m_ptCurrentPos - m_ptDragStartPos);
+			QPoint ptLeftTop = getLeftTopPoint(movePressed, moveReleased);
+			m_ptReleasedPos = getRightBottomPoint(m_ptPressedPos, m_ptReleasedPos);
+			m_ptPressedPos = ptLeftTop;
+		}
+		else if(m_dragJudge == DRAGJUDGE_RIGHT)
+		{
+
+		}
+		else if(m_dragJudge == DRAGJUDGE_UP)
+		{
+
+		}
+		else if(m_dragJudge == DRAGJUDGE_DOWN)
+		{
+
+		}
+		m_drawType = DrawScreenArea;
+	}
+	
+	m_dragJudge = DRAGJUDGE_NULL;
+	//if(m_DrawType == DrawScreenArea)
+	//	m_bIsdrawing = true;
+
+	/*
         if (m_bIszooming)
             m_bIszooming = false;
         
@@ -330,8 +454,10 @@ void ScreenShotImgDlg::mouseReleaseEvent(QMouseEvent *event)
         {
             m_dragJudge = DRAGJUDGE_OUTSIDE;
         }
-        update();
-    }
+
+		m_ptReleasedPos = event->pos();
+		*/
+	update();
 }
 
 void ScreenShotImgDlg::contextMenuEvent(QContextMenuEvent *event)
@@ -434,47 +560,295 @@ void ScreenShotImgDlg::onBtnDrawRectangle()
     //设置当前pen为绘制矩形框的
     m_bIsSelectDrawShape = true;
     m_bIsdraging = false;
-    m_CurrentDrawType = DRAWTYPERECTANGLE;
+    m_shapeType = DRAWTYPERECTANGLE;
 }
 
 void ScreenShotImgDlg::onBtnSureToClipboardClicked()
 {
     //写剪贴板
     QClipboard *pClipBoard = QApplication::clipboard();
-    pClipBoard->setPixmap(m_pixMap);
+	QPixmap pixmap(m_drawRect.size());
+
+	QRegion region(m_drawRect);
+	this->render(&pixmap, QPoint(0, 0), region);
+    pClipBoard->setPixmap(pixmap);
     onBtnCancle();
 }
 
 void ScreenShotImgDlg::onBtnCancle()
 {
-    m_pBtnRectangle->close();
-	m_pBtnSave.close();
-	m_pBtnSure.close();
-	m_pBtnCancle.close();
 	this->close();
 	emit onScreenImgClose();
 }
 
-void ScreenShotImgDlg::paintEvent(QPaintEvent *)
+QPoint ScreenShotImgDlg::getLeftTopPoint(const QPoint &pt1, const QPoint &pt2)
+{
+	int leftTopX = pt1.x() < pt2.x() ? pt1.x() : pt2.x();
+	int leftTopY = pt1.y() < pt2.y() ? pt1.y() : pt2.y();
+	return QPoint(leftTopX, leftTopY);
+}
+
+QPoint ScreenShotImgDlg::getRightBottomPoint(const QPoint &pt1, const QPoint &pt2)
+{
+	int rightBottomX = pt1.x() > pt2.x() ? pt1.x() : pt2.x();
+	int rightBottomY = pt1.y() > pt2.y() ? pt1.y() : pt2.y();
+	return QPoint(rightBottomX, rightBottomY);
+}
+
+QRect ScreenShotImgDlg::getDrawRect(const QPoint &pt1, const QPoint &pt2)
+{
+	int leftTopX = pt1.x() < pt2.x() ? pt1.x() : pt2.x();
+	int leftTopY = pt1.y() < pt2.y() ? pt1.y() : pt2.y();
+	int rightBottomX = pt1.x() > pt2.x() ? pt1.x() : pt2.x();
+	int rightBottomY = pt1.y() > pt2.y() ? pt1.y() : pt2.y();
+
+	return QRect(QPoint(leftTopX, leftTopY), QPoint(rightBottomX, rightBottomY));
+}
+
+void ScreenShotImgDlg::showToolBar(const QPoint &drawAreaRightBottomPt)
+{
+	m_pToolBar->setGeometry(drawAreaRightBottomPt.x() - m_pToolBar->width(),
+							drawAreaRightBottomPt.y() + 10, 
+							m_pToolBar->width(), 
+							m_pToolBar->height());
+	m_pToolBar->show();
+}
+
+void ScreenShotImgDlg::drawRectDragPoint(const QRect& rect)
+{
+	QPainter drawpainter(this);
+	QBrush brush(QColor(255, 0, 0, 125));
+	QPen pen(QColor(255, 0, 0, 125));
+	drawpainter.setBrush(brush);
+	drawpainter.setPen(pen);
+
+	//按顺时针绘制点
+	//左上点
+	QPoint ptLeftTop = rect.topLeft();
+	drawpainter.drawRect(ptLeftTop.x() - (DRAGPOINTWIDTH + 1) / 2,
+						ptLeftTop.y() - (DRAGPOINTWIDTH + 1) / 2,
+						DRAGPOINTWIDTH, DRAGPOINTWIDTH);
+	
+	QPoint ptTopMiddle = (rect.topLeft() + rect.topRight()) / 2;
+	drawpainter.drawRect(ptTopMiddle.x(),
+						ptTopMiddle.y() - (DRAGPOINTWIDTH + 1) / 2,
+						DRAGPOINTWIDTH, DRAGPOINTWIDTH);
+	
+	QPoint ptTopRight = rect.topRight();
+	drawpainter.drawRect(ptTopRight.x() - (DRAGPOINTWIDTH + 1) / 2,
+						ptTopRight.y() - (DRAGPOINTWIDTH + 1) / 2,
+						DRAGPOINTWIDTH, DRAGPOINTWIDTH);
+
+	
+	QPoint ptRightMiddle = (rect.topRight() + rect.bottomRight()) / 2;
+	drawpainter.drawRect(ptRightMiddle.x() - (DRAGPOINTWIDTH + 1) / 2,
+						ptRightMiddle.y(),
+						DRAGPOINTWIDTH, DRAGPOINTWIDTH);
+	
+	QPoint ptRightBottom = rect.bottomRight();
+	drawpainter.drawRect(ptRightBottom.x() - (DRAGPOINTWIDTH + 1) / 2,
+						ptRightBottom.y() - (DRAGPOINTWIDTH + 1) / 2,
+						DRAGPOINTWIDTH, DRAGPOINTWIDTH);
+	
+	QPoint ptBottomMiddle = (rect.bottomRight() + rect.bottomLeft()) / 2;
+	drawpainter.drawRect(ptBottomMiddle.x(), 
+						ptBottomMiddle.y() - (DRAGPOINTWIDTH + 1) / 2,
+						DRAGPOINTWIDTH, DRAGPOINTWIDTH);
+	
+	QPoint ptBottomLeft = rect.bottomLeft();
+	drawpainter.drawRect(ptBottomLeft.x() - (DRAGPOINTWIDTH + 1) / 2,
+						ptBottomLeft.y() - (DRAGPOINTWIDTH + 1) / 2,
+						DRAGPOINTWIDTH, DRAGPOINTWIDTH);
+	
+	QPoint ptLeftMiddle = (rect.topLeft() + rect.bottomLeft()) / 2;
+	drawpainter.drawRect(ptLeftMiddle.x()- (DRAGPOINTWIDTH + 1) / 2,
+						ptLeftMiddle.y(),
+						DRAGPOINTWIDTH, DRAGPOINTWIDTH);
+}
+
+void ScreenShotImgDlg::drawZoomArea(const QPoint& pt)
+{
+	QPainter zoomPainter(this);
+	QPen pen;
+	QBrush brush(QColor(0, 0, 0));
+	QFont font("Microsoft YaHei", 8);
+	int x, y;
+	x = pt.x();
+	y = pt.y();
+	int width, height;
+	width = m_pScreenJudge->drawWidth();
+	height = m_pScreenJudge->drawHeight();
+	int red, green, blue;
+	red = qRed(m_fullScreenFogImg.pixel(x, y));
+	green = qGreen(m_fullScreenFogImg.pixel(x, y));
+	blue = qBlue(m_fullScreenFogImg.pixel(x, y));
+
+	//放大框
+	m_zoomRect = QRect(x - 10, y - 10, 20, 20);
+	m_pixMap = m_fullScreenPix.copy(m_zoomRect);
+	//if (m_pScreenJudge->zoomJudge() == ZOOMJUDGE_LEFTUP){
+
+		zoomPainter.drawPixmap(x + 10, y + 10, 100, 100, m_pixMap);
+		pen.setColor(QColor(0, 255, 0, 125));
+		pen.setWidthF(3);
+		zoomPainter.setPen(pen);
+		zoomPainter.drawLine(x + 10 + 50, y + 15, x + 10 + 50, y + 10 + 95);
+		zoomPainter.drawLine(x + 15, y + 10 + 50, x + 10 + 95, y + 10 + 50);
+		pen.setColor(QColor(0, 0, 0));
+		pen.setWidth(1);
+		zoomPainter.setPen(pen);
+		zoomPainter.drawRect(x + 10, y + 10, 100, 100);
+		//信息框            
+		brush.setColor(QColor(0, 0, 0, 200));
+		zoomPainter.setBrush(brush);
+		zoomPainter.drawRect(x + 10, y + 10 + 100, 100, 30);
+		m_infoFirstRect = QRect(x + 10, y + 10 + 100, 100, 15);
+		m_infoSecondRect = QRect(x + 10, y + 10 + 100 + 15, 100, 15);
+		pen.setColor(QColor(255, 255, 255));
+		zoomPainter.setPen(pen);
+		zoomPainter.setFont(font);
+		zoomPainter.drawText(m_infoFirstRect, Qt::AlignHCenter | Qt::AlignVCenter, QString("%1 x %2").arg(width).arg(height));
+		zoomPainter.drawText(m_infoSecondRect, Qt::AlignHCenter | Qt::AlignVCenter, QString("RGB(%1,%2,%3)").arg(red).arg(green).arg(blue));
+	//}
+}
+
+void ScreenShotImgDlg::drawScreenArea(const QRect& rect)
+{
+	QPainter drawpainter(this);
+	m_drawPix = m_fullScreenPix.copy(m_drawRect);
+	QPen pen;
+	pen.setColor(QColor(0, 255, 0, 125));
+	pen.setWidthF(1);
+	drawpainter.setPen(pen);
+
+	QBrush brush(m_fullScreenPix);
+	drawpainter.setBrush(brush);
+	drawpainter.drawRect(m_drawRect);
+}
+
+void ScreenShotImgDlg::paintEvent(QPaintEvent *event)
 {
 	/*
 	1 下面m_bisdrawing,m_bIsdraging，m_bIszooming，m_bIsSelectDrawShape
 	  是页面绘制状态机标志
 	*/
-
 	//todo: 可拉伸的点变成拖动，功能失效，需要重新查看调整。
+	//todo: 调整点的大小，变得更可用
+	//简化问题，只有通过四个方向的拖动改变大小
+	//在区域中花矩形，后面的逻辑就更复杂了
+	//需要自己重新尝试
+	switch(m_drawType)
+	{
+	case DrawScreenNone:
+		{
+			__super::paintEvent(event);
+			return ;
+		}
+		break;
+	case DrawScreenArea:
+		{
+			m_drawRect = getDrawRect(m_ptPressedPos, m_ptReleasedPos);
+			drawScreenArea(m_drawRect);
+			drawRectDragPoint(m_drawRect);
 
+			QPainter painter(this);
+			if(!m_shapeStack.isEmpty())
+			{
+					//先绘制里面已经存在的
+				for(QStack<ShapeInfo>::Iterator iter = m_shapeStack.begin(); iter != m_shapeStack.end(); iter++)
+				{
+					ShapeInfo tmpShapeInfo = *iter;
+					if(tmpShapeInfo.type == DRAWTYPERECTANGLE)
+					{
+						painter.drawRect(QRect(tmpShapeInfo.ptLeftTop, tmpShapeInfo.ptRightBottom));
+					}
+				}
+			}
+			else		
+			{
+				
+				QPen pen(QColor(255, 0, 0));
+				QBrush brush(QColor(255,255,255));
+				painter.setBrush(brush);
+				painter.setPen(pen);
+
+				switch(m_shapeType)
+				{
+				case DRAWTYPERECTANGLE:
+					{
+						if(m_bMousePressed)		//这里绘制的都是图形的中间状态
+						{
+							QRect shapeRect = getDrawRect(m_ptShapeStartPos, m_ptShapeCurrentPos);
+							painter.drawRect(shapeRect);
+						}
+						/*
+						else		//都已经放到stack里面绘制了
+						{
+							QRect shapeRect = getDrawRect(m_ptShapeStartPos, m_ptShapeEndPos);
+							painter.drawRect(shapeRect);
+						}
+						*/
+					}
+					break;
+				case DRAWTYPENONE:
+					break;
+				default:
+					break;
+				}
+			}
+			/*else
+			{
+				if(m_shapeType.type != DRAWTYPENONE)
+				{
+					//绘制当前的这个
+				}
+			}
+			*/
+
+			
+			showToolBar(getRightBottomPoint(m_ptPressedPos, m_ptReleasedPos));
+		}
+		break;
+	case DrawScreenDragSize:
+		{
+			switch(m_dragJudge)
+			{
+			case DRAGJUDGE_LEFT:
+				{
+					QPoint movePressed = m_ptPressedPos + (m_ptCurrentPos - m_ptDragStartPos);
+					QPoint moveReleased = m_ptReleasedPos + (m_ptCurrentPos - m_ptDragStartPos);
+					QPoint ptLeftTop = getLeftTopPoint(movePressed, moveReleased);
+					m_drawRect = getDrawRect(ptLeftTop, getRightBottomPoint(m_ptPressedPos, m_ptReleasedPos));
+					drawScreenArea(m_drawRect);
+					drawRectDragPoint(m_drawRect);
+					//showToolBar(getRightBottomPoint(m_ptPressedPos, m_ptReleasedPos));
+				}
+				break;
+			default:
+				break;
+			}
+			drawZoomArea(m_ptCurrentPos);
+		}
+		break;
+	case DrawScreenDragPos:
+		{
+			QPoint movePressed = m_ptPressedPos + (m_ptCurrentPos - m_ptDragStartPos);
+			QPoint moveReleased = m_ptReleasedPos + (m_ptCurrentPos - m_ptDragStartPos);
+			m_drawRect = getDrawRect(movePressed, moveReleased);
+			drawScreenArea(m_drawRect);
+			drawRectDragPoint(m_drawRect);
+			showToolBar(getRightBottomPoint(movePressed, moveReleased));
+		}
+		break;
+	default:
+		break;
+	}
+	__super::paintEvent(event);
+	/*
 	if (m_bIsdrawing)
     {
-		m_drawRect = m_pScreenJudge->drawRect();
-		QPainter drawpainter(this);
-		m_drawPix = m_fullScreenPix.copy(m_drawRect);
-		drawpainter.drawPixmap(m_drawRect, m_drawPix);
-		QPen pen;
-		pen.setColor(QColor(0, 255, 0, 125));
-		pen.setWidthF(1);
-		drawpainter.setPen(pen);
-		drawpainter.drawRect(m_drawRect);
+		//draw中间截屏区域
+		
 		QFont font("Microsoft YaHei", 8);
 		int x, y;
 		x = m_pScreenJudge->westNorthPoint().x();
@@ -483,9 +857,11 @@ void ScreenShotImgDlg::paintEvent(QPaintEvent *)
 		width = m_pScreenJudge->drawWidth();
 		height = m_pScreenJudge->drawHeight();
 
-		//可拉伸点的画~。
+		
+		//draw可拉伸点的画~。
 		QBrush brush(QColor(0, 255, 0, 125));
 		drawpainter.setBrush(brush);
+		
 		m_dragPoint = m_pScreenJudge->eastPoint();
 		drawpainter.drawRect(m_dragPoint.x(), m_dragPoint.y(), 3, 3);
 		m_dragPoint = m_pScreenJudge->westPoint();
@@ -503,6 +879,8 @@ void ScreenShotImgDlg::paintEvent(QPaintEvent *)
 		m_dragPoint = m_pScreenJudge->westNorthPoint();
 		drawpainter.drawRect(m_dragPoint.x() - 3, m_dragPoint.y() - 3, 3, 3);
 
+		
+		//draw 鼠标所有像素放大图像尺寸
 		if (m_pScreenJudge->infoJudge() == ZOOMJUDGE_LEFTDOWN)
 		{
 			pen.setColor(QColor(0, 0, 0, 150));
@@ -551,6 +929,7 @@ void ScreenShotImgDlg::paintEvent(QPaintEvent *)
 		int width, height;
 		width = m_pScreenJudge->drawWidth();
 		height = m_pScreenJudge->drawHeight();
+
 		//可拉伸点的画~。
 		QBrush brush(QColor(0, 255, 0, 125));
 		drawpainter.setBrush(brush);
@@ -612,14 +991,6 @@ void ScreenShotImgDlg::paintEvent(QPaintEvent *)
 			drawpainter.drawText(m_infoThirdRect, Qt::AlignHCenter | Qt::AlignVCenter, QString("%1 x %2").arg(width).arg(height));
 		}
 
-        /*
-            1 分别作为不同的窗口分别显示的，不方便统一管理
-            2 在拖动时几个按钮会出现消失的现象。其实没有消失，显示位置也是正确的
-              只是没有显示到屏幕上，切换窗口时能发现。
-            3 在功能多的时候更不方便扩展，下面会出现很多小的对话框。
-            4 综合以上几点需要把工具栏的按钮重新改造。
-        */
-		//button
 		if (m_pScreenJudge->btnJudge() == DRAGJUDGE_INSIDE)
 		{
 			m_pToolBar->setGeometry(m_pScreenJudge->eastNorthPoint().x() - m_pToolBar->width(),
@@ -756,17 +1127,18 @@ void ScreenShotImgDlg::paintEvent(QPaintEvent *)
             zoomPainter.drawText(m_infoSecondRect, Qt::AlignHCenter | Qt::AlignVCenter, QString("RGB(%1,%2,%3)").arg(red).arg(green).arg(blue));
         }
     }
-//     if(m_bIsSelectDrawShape)
-//     {
-//         QPainter* painter = new QPainter(this);
-//         painter->begin(this);
-//         painter->setPen(QPen(Qt::red, 2, Qt::SolidLine));         //设置画笔形式 
-//         // m_pPainter->setBrush(QBrush(Qt::red, Qt::SolidPattern));    //设置画刷形式 
-//         int lefttopPosX = m_ptCurrentPos.x() < m_ptMousePress.x() ? m_ptCurrentPos.x() : m_ptMousePress.x();
-//         int lefttopPosY = m_ptCurrentPos.y() < m_ptMousePress.y() ? m_ptCurrentPos.y() : m_ptMousePress.y();
-//         int width = abs(m_ptCurrentPos.x() - m_ptMousePress.x());
-//         int height = abs(m_ptCurrentPos.y() - m_ptMousePress.y());
-//         painter->drawRect(lefttopPosX, lefttopPosY, width, height);
-//         painter->end();
-//     }
+    if(m_bIsSelectDrawShape)
+    {
+        QPainter* painter = new QPainter(this);
+        painter->begin(this);
+        painter->setPen(QPen(Qt::red, 2, Qt::SolidLine));         //设置画笔形式 
+        // m_pPainter->setBrush(QBrush(Qt::red, Qt::SolidPattern));    //设置画刷形式 
+        int lefttopPosX = m_ptReleasedPos.x() < m_ptPressedPos.x() ? m_ptReleasedPos.x() : m_ptPressedPos.x();
+        int lefttopPosY = m_ptReleasedPos.y() < m_ptPressedPos.y() ? m_ptReleasedPos.y() : m_ptPressedPos.y();
+        int width = abs(m_ptReleasedPos.x() - m_ptPressedPos.x());
+        int height = abs(m_ptReleasedPos.y() - m_ptPressedPos.y());
+        painter->drawRect(lefttopPosX, lefttopPosY, width, height);
+        painter->end();
+    }
+	*/
 }
