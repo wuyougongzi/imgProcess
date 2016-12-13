@@ -15,5 +15,9 @@
 		<file>image/screenshot/rect.png</file>
 		<file>image/screenshot/save.png</file>
 		<file>image/screenshot/undo.png</file>
+		<file>image/screenshot/text.png</file>
+		<file>image/screenshot/cancal.png</file>
+		<file>image/screenshot/arrow.png</file>
+		<file>image/screenshot/mosaic.png</file>
     </qresource>
 </RCC>

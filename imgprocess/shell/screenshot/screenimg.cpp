@@ -28,6 +28,12 @@ ScreenShotImgDlg::ScreenShotImgDlg(QDialog *parent/* = 0*/)
 	 * 初始化截图屏幕
 	 */
 	//获取屏幕尺寸
+#ifdef _DEBUG
+#else
+	setWindowFlags(Qt::WindowStaysOnTopHint);
+#endif
+	
+
 	QDesktopWidget* desktopWidget = QApplication::desktop();
 	QRect deskRect = desktopWidget->screenGeometry();
 	m_iWidth = deskRect.width();
@@ -67,13 +73,17 @@ ScreenShotImgDlg::ScreenShotImgDlg(QDialog *parent/* = 0*/)
 	m_zoomPoint = QCursor::pos();
 	
 	//初始化类计算
-	m_pScreenJudge = QSharedPointer<ScreenJudge>(new ScreenJudge(m_iWidth - 1, m_iHeight - 1, m_zoomPoint));
+	//m_pScreenJudge = QSharedPointer<ScreenJudge>(new ScreenJudge(m_iWidth - 1, m_iHeight - 1, m_zoomPoint));
 	
     m_pToolBar = new ScreenToolBar(this);
 	connect(m_pToolBar, SIGNAL(selectRect()), this, SLOT(onBtnDrawRectangle()));
 	connect(m_pToolBar, SIGNAL(selectSave()), this, SLOT(onBtnSaveClicked()));
 	connect(m_pToolBar, SIGNAL(selectCancal()), this, SLOT(onBtnCancle()));
 	connect(m_pToolBar, SIGNAL(selectFinish()), this, SLOT(onBtnSureToClipboardClicked()));
+	connect(m_pToolBar, SIGNAL(selectText()), this, SLOT(onBtnText()));
+	connect(m_pToolBar, SIGNAL(selectMosaic()), this, SLOT(onBtnMosaic()));
+	connect(m_pToolBar, SIGNAL(selectUndu()), this, SLOT(onBtnUndu()));
+	connect(m_pToolBar, SIGNAL(selectArrow()), this, SLOT(onBtnArrow()));
 
     m_bIsSelectDrawShape = false;
    
@@ -143,13 +153,16 @@ void ScreenShotImgDlg::mousePressEvent(QMouseEvent *event)
 			else
 			{
 				m_ptShapeStartPos = event->pos();
-				m_currentShapeInfo.type = m_shapeType;
-				//m_currentShapeInfo.
+				m_drawType = DrawScreenShape;
+				if(m_shapeType == DRAWTYPEMOSAIC)
+				{
+					m_pixMap = getDrawAreaPixmap();
+				}
 			}
 		}
 	}
 	//if(m_bFirst)
-	//{
+	//
 	//	m_DrawType = DrawScreenArea;
 	//	return;
 	//}
@@ -277,6 +290,12 @@ void ScreenShotImgDlg::mouseMoveEvent(QMouseEvent *event)
 	else {
 		this->setCursor(Qt::ArrowCursor);
 	}
+	
+	if(m_drawType == DrawScreenShape && m_shapeType == DRAWTYPEMOSAIC && m_bMousePressed)
+	{
+		m_mosaicVec.push_back(event->pos());
+	}
+	
    /* if (m_bIsdrawing)
     {
         if (event->buttons()&Qt::LeftButton) //鼠标左键按下的同时移动鼠标
@@ -385,20 +404,12 @@ void ScreenShotImgDlg::mouseReleaseEvent(QMouseEvent *event)
 	if(m_drawType == DrawScreenNone)
 	{
 		m_ptReleasedPos = event->pos();
-
-	//if(m_drawType == DrawScreenNone)
 		m_drawType = DrawScreenArea;
 
 	}
 	else if(m_drawType == DrawScreenArea)
 	{
-		if(m_shapeType != DRAWTYPENONE)
-		{
-			m_currentShapeInfo.type = m_shapeType;
-			m_currentShapeInfo.ptLeftTop = getLeftTopPoint(m_ptShapeStartPos, m_ptShapeCurrentPos);
-			m_currentShapeInfo.ptRightBottom = getRightBottomPoint(m_ptShapeStartPos, m_ptShapeCurrentPos);
-			m_shapeStack.push(m_currentShapeInfo);
-		}
+		
 	}
 	else if(m_drawType == DrawScreenDragPos)
 	{
@@ -427,6 +438,24 @@ void ScreenShotImgDlg::mouseReleaseEvent(QMouseEvent *event)
 		else if(m_dragJudge == DRAGJUDGE_DOWN)
 		{
 
+		}
+		m_drawType = DrawScreenArea;
+	}
+	else if(DrawScreenShape)
+	{
+		if(m_shapeType == DRAWTYPERECTANGLE)
+		{
+			m_currentShapeInfo.type = m_shapeType;
+			m_currentShapeInfo.ptLeftTop = getLeftTopPoint(m_ptShapeStartPos, m_ptShapeCurrentPos);
+			m_currentShapeInfo.ptRightBottom = getRightBottomPoint(m_ptShapeStartPos, m_ptShapeCurrentPos);
+			m_shapeStack.push(m_currentShapeInfo);
+		}
+		else if(m_shapeType == DRAWTYPEARROW)
+		{
+			m_currentShapeInfo.type = m_shapeType;
+			m_currentShapeInfo.ptLeftTop = m_ptShapeStartPos;
+			m_currentShapeInfo.ptRightBottom = m_ptShapeCurrentPos;
+			m_shapeStack.push(m_currentShapeInfo);
 		}
 		m_drawType = DrawScreenArea;
 	}
@@ -563,14 +592,21 @@ void ScreenShotImgDlg::onBtnDrawRectangle()
     m_shapeType = DRAWTYPERECTANGLE;
 }
 
-void ScreenShotImgDlg::onBtnSureToClipboardClicked()
+QPixmap ScreenShotImgDlg::getDrawAreaPixmap()
 {
-    //写剪贴板
-    QClipboard *pClipBoard = QApplication::clipboard();
 	QPixmap pixmap(m_drawRect.size());
 
 	QRegion region(m_drawRect);
 	this->render(&pixmap, QPoint(0, 0), region);
+	return pixmap;
+}
+
+void ScreenShotImgDlg::onBtnSureToClipboardClicked()
+{
+    //写剪贴板
+    QClipboard *pClipBoard = QApplication::clipboard();
+	QPixmap pixmap = getDrawAreaPixmap();
+
     pClipBoard->setPixmap(pixmap);
     onBtnCancle();
 }
@@ -579,6 +615,32 @@ void ScreenShotImgDlg::onBtnCancle()
 {
 	this->close();
 	emit onScreenImgClose();
+}
+
+void ScreenShotImgDlg::onBtnText()
+{
+	m_shapeType = DRAWTYPETEXT;
+}
+
+void ScreenShotImgDlg::onBtnUndu()
+{
+	if(!m_shapeStack.isEmpty())
+	{
+		m_shapeStack.pop();
+		update();
+	}
+	else
+		this->close();
+}
+
+void ScreenShotImgDlg::onBtnArrow()
+{
+	m_shapeType = DRAWTYPEARROW;
+}
+
+void ScreenShotImgDlg::onBtnMosaic()
+{
+	m_shapeType = DRAWTYPEMOSAIC;
 }
 
 QPoint ScreenShotImgDlg::getLeftTopPoint(const QPoint &pt1, const QPoint &pt2)
@@ -676,8 +738,10 @@ void ScreenShotImgDlg::drawZoomArea(const QPoint& pt)
 	x = pt.x();
 	y = pt.y();
 	int width, height;
-	width = m_pScreenJudge->drawWidth();
-	height = m_pScreenJudge->drawHeight();
+	width = m_drawRect.width();
+	height = m_drawRect.height();
+	//width = m_pScreenJudge->drawWidth();
+	//height = m_pScreenJudge->drawHeight();
 	int red, green, blue;
 	red = qRed(m_fullScreenFogImg.pixel(x, y));
 	green = qGreen(m_fullScreenFogImg.pixel(x, y));
@@ -726,6 +790,112 @@ void ScreenShotImgDlg::drawScreenArea(const QRect& rect)
 	drawpainter.drawRect(m_drawRect);
 }
 
+void ScreenShotImgDlg::drawShapeArrow(QPainter *painter, const QPoint &ptStart, const QPoint &ptEnd)
+{
+	QLineF lineArrow(ptStart, ptEnd);
+	qreal arrowLength = lineArrow.length();
+	//默认值
+	qreal arrowHeadLength = 16;
+	qreal arrowHeadWidth = 16;
+	qreal arrowSideWidth = 4;
+
+	QPointF pt = lineArrow.pointAt((arrowLength - arrowHeadLength) / arrowLength);
+	QLineF lineArrowHead(pt, lineArrow.p2());
+	lineArrowHead.setAngle(lineArrow.angle() + 90);
+
+	QPointF ptMid = lineArrowHead.pointAt(0.5);
+	lineArrowHead.translate(pt - ptMid);
+
+	QPointF pt1 = lineArrowHead.pointAt(0);
+	QPointF pt2 = lineArrowHead.pointAt(1);
+
+	QPointF pts[3] = {ptEnd, pt1, pt2};
+	painter->drawPolygon(pts, 3);
+
+	pt1 = lineArrowHead.pointAt(
+		(arrowHeadWidth - arrowSideWidth) / arrowHeadWidth);
+	pt2 = lineArrowHead.pointAt(
+		1 - (arrowHeadWidth - arrowSideWidth) / arrowHeadWidth);
+	QPointF ptOffset = lineArrow.pointAt(
+		(arrowLength - arrowHeadLength + 2) / arrowLength);
+	QLineF lineSide(pt1, pt2);
+	ptMid = lineSide.pointAt(0.5);
+	lineSide.translate(ptOffset - ptMid);
+
+	pts[0] = ptStart;
+	pts[1] = lineSide.p1();
+	pts[2] = lineSide.p2();
+	painter->drawPolygon(pts, 3);
+}
+
+void ScreenShotImgDlg::drawTextAreaRect(QPainter *painter)
+{
+
+}
+
+void ScreenShotImgDlg::drawExitingShapeAll(QPainter *painter)
+{
+	for(QStack<ShapeInfo>::Iterator iter = m_shapeStack.begin(); iter != m_shapeStack.end(); iter++)
+	{
+		ShapeInfo tmpShapeInfo = *iter;
+		if(tmpShapeInfo.type == DRAWTYPERECTANGLE)
+		{
+			painter->drawRect(QRect(tmpShapeInfo.ptLeftTop, tmpShapeInfo.ptRightBottom));
+		}
+		else if(tmpShapeInfo.type == DRAWTYPEARROW)
+		{
+			painter->setPen(Qt::NoPen);
+			QBrush brush(QColor(255,0,0));
+			painter->setBrush(brush);
+			//反走样
+			painter->setRenderHint(QPainter::Antialiasing, true);
+			drawShapeArrow(painter, tmpShapeInfo.ptLeftTop, tmpShapeInfo.ptRightBottom);
+		}
+	}
+}
+
+void ScreenShotImgDlg::drawMosaic(QPainter *painter, const QPoint &currentPt)
+{
+	QImage image = m_pixMap.toImage();
+
+	QPoint pt;
+	for(int index = 0; index < (int)m_mosaicVec.size(); index++){
+		//todo:好像长了之后还有拖动比较快之后绘制会有延迟，看起来比较明显
+		//需要解决上面的问题
+		pt = m_mosaicVec[index];
+		int x = pt.x() - m_drawRect.topLeft().x();
+		int y = pt.y() - m_drawRect.topLeft().y();
+		int red = 0, green = 0, blue = 0;
+
+		//总共 9 * 9个点
+		static int MOSAICWIDTH = 4;
+		for(int i = MOSAICWIDTH *(-1); i <= MOSAICWIDTH; i++)
+		{
+			for(int j = MOSAICWIDTH * (-1); j <= MOSAICWIDTH; j++)
+			{
+				//if()
+				if(x + i >= 0 && x + i < image.width() && y + j >= 0 && y + j < image.height())
+				{
+					red += qRed(image.pixel(x + i, y + j));
+					green += qGreen(image.pixel(x + i, y + j));
+					blue += qBlue(image.pixel(x + i, y + j));
+				}
+			}
+		}
+		int PtCnt = ((MOSAICWIDTH * 2) + 1) * ((MOSAICWIDTH * 2) + 1);
+		red = red / PtCnt;
+		green = green / PtCnt;
+		blue = blue / PtCnt;
+
+		QBrush brush(QColor(red, green, blue));
+		painter->setPen(Qt::NoPen);
+		painter->setBrush(brush);
+
+		painter->drawRect(QRect(QPoint(pt.x() - MOSAICWIDTH, pt.y() - MOSAICWIDTH),
+			QPoint(pt.x() + MOSAICWIDTH, pt.y() + MOSAICWIDTH)));
+	}
+}
+
 void ScreenShotImgDlg::paintEvent(QPaintEvent *event)
 {
 	/*
@@ -737,6 +907,7 @@ void ScreenShotImgDlg::paintEvent(QPaintEvent *event)
 	//简化问题，只有通过四个方向的拖动改变大小
 	//在区域中花矩形，后面的逻辑就更复杂了
 	//需要自己重新尝试
+	//todo：尝试绘制输入框及文字
 	switch(m_drawType)
 	{
 	case DrawScreenNone:
@@ -750,23 +921,25 @@ void ScreenShotImgDlg::paintEvent(QPaintEvent *event)
 			m_drawRect = getDrawRect(m_ptPressedPos, m_ptReleasedPos);
 			drawScreenArea(m_drawRect);
 			drawRectDragPoint(m_drawRect);
+			QPainter painter(this);
+
+			//先绘制里面已经存在的
+			drawExitingShapeAll(&painter);
+			drawMosaic(&painter, m_ptShapeCurrentPos);
+			showToolBar(getRightBottomPoint(m_ptPressedPos, m_ptReleasedPos));
+		}
+		break;
+	case DrawScreenShape:
+		{
+			m_drawRect = getDrawRect(m_ptPressedPos, m_ptReleasedPos);
+			drawScreenArea(m_drawRect);
+			drawRectDragPoint(m_drawRect);
 
 			QPainter painter(this);
-			if(!m_shapeStack.isEmpty())
-			{
+
 					//先绘制里面已经存在的
-				for(QStack<ShapeInfo>::Iterator iter = m_shapeStack.begin(); iter != m_shapeStack.end(); iter++)
-				{
-					ShapeInfo tmpShapeInfo = *iter;
-					if(tmpShapeInfo.type == DRAWTYPERECTANGLE)
-					{
-						painter.drawRect(QRect(tmpShapeInfo.ptLeftTop, tmpShapeInfo.ptRightBottom));
-					}
-				}
-			}
-			else		
-			{
-				
+			drawExitingShapeAll(&painter);
+			
 				QPen pen(QColor(255, 0, 0));
 				QBrush brush(QColor(255,255,255));
 				painter.setBrush(brush);
@@ -774,20 +947,36 @@ void ScreenShotImgDlg::paintEvent(QPaintEvent *event)
 
 				switch(m_shapeType)
 				{
-				case DRAWTYPERECTANGLE:
-					{
+				case DRAWTYPERECTANGLE:							{
 						if(m_bMousePressed)		//这里绘制的都是图形的中间状态
 						{
 							QRect shapeRect = getDrawRect(m_ptShapeStartPos, m_ptShapeCurrentPos);
 							painter.drawRect(shapeRect);
 						}
-						/*
-						else		//都已经放到stack里面绘制了
+					}
+					break;
+				case DRAWTYPEARROW:
+					{
+						if(m_bMousePressed)
 						{
-							QRect shapeRect = getDrawRect(m_ptShapeStartPos, m_ptShapeEndPos);
-							painter.drawRect(shapeRect);
+							painter.setPen(Qt::NoPen);
+							QBrush brush(QColor(255,0,0));
+							painter.setBrush(brush);
+							//反走样
+							painter.setRenderHint(QPainter::Antialiasing, true);
+							drawShapeArrow(&painter, m_ptShapeStartPos, m_ptShapeCurrentPos);
 						}
-						*/
+					}
+					break;
+				case DRAWTYPEMOSAIC:
+					{
+						if(m_bMousePressed)
+						{
+							//painter
+							//取鼠标附近9 * 9 像素点颜色的平均值
+							//将brush 的宽度设置为9
+							drawMosaic(&painter, m_ptShapeCurrentPos);
+						}
 					}
 					break;
 				case DRAWTYPENONE:
@@ -795,17 +984,6 @@ void ScreenShotImgDlg::paintEvent(QPaintEvent *event)
 				default:
 					break;
 				}
-			}
-			/*else
-			{
-				if(m_shapeType.type != DRAWTYPENONE)
-				{
-					//绘制当前的这个
-				}
-			}
-			*/
-
-			
 			showToolBar(getRightBottomPoint(m_ptPressedPos, m_ptReleasedPos));
 		}
 		break;

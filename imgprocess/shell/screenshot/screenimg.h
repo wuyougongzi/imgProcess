@@ -19,6 +19,7 @@
 #include <QFileDialog>
 #include <QToolButton>
 #include <QStack>
+#include <QTextEdit>
 
 //当前绘制的类型
 enum DrawShapeType
@@ -28,6 +29,7 @@ enum DrawShapeType
     DRAWTYPEELLIPSE,
     DRAWTYPEARROW,
     DRAWTYPETEXT,
+	DRAWTYPEMOSAIC,
 };
 
 struct ShapeInfo
@@ -55,6 +57,7 @@ enum DrawStatus
 	DrawScreenArea,			//绘制需要捕捉的屏幕位置
 	DrawScreenDragPos,		//拖动区域时绘制
 	DrawScreenDragSize,		//拖动大小时绘制
+	DrawScreenShape,		//需要绘制里面的形状
 };
 
 
@@ -82,12 +85,17 @@ private slots:
     void onBtnSaveClicked();
     void onBtnSureToClipboardClicked();
     void onBtnCancle();
+	void onBtnText();
+	void onBtnUndu();
+	void onBtnArrow();
+	void onBtnMosaic();
 
 signals:
     void onScreenImgClose();
     void onSaveSucessed(const QString& strFilePath);
 	
 private:
+	QPixmap getDrawAreaPixmap();
 	void drawScreenArea(const QRect& rect);
 	void drawRectDragPoint(const QRect& rect);			//绘制屏幕区域可拖动的点
 	void drawZoomArea(const QPoint& pt);				//绘制放大框
@@ -95,6 +103,10 @@ private:
 	QPoint getRightBottomPoint(const QPoint &pt1, const QPoint &pt2);
 	QRect getDrawRect(const QPoint &pt1, const QPoint &pt2);
 	void showToolBar(const QPoint &drawAreaRightBottomPt);
+	void drawShapeArrow(QPainter *painter, const QPoint &ptStart, const QPoint &ptEnd);
+	void drawTextAreaRect(QPainter *painter);
+	void drawExitingShapeAll(QPainter *painter);
+	void drawMosaic(QPainter *painter, const QPoint &pt);
 
 private:
     //类处理
@@ -144,6 +156,10 @@ private:
 	ShapeInfo			m_currentShapeInfo;		//当前正在画的图形
 	QStack<ShapeInfo>	m_shapeStack;			//采用stack，为了支持后面的撤销操作
 	//QVector<QRect>	m_dragRect;				//可拖动变大小的几个rect区域,简化计算
+
+	QVector<QPoint>		m_mosaicVec;
+	QTextEdit		*m_textEdit;
+	QRect			m_rcTextEdit;
 };
 
 #endif // SCREENIMG_H

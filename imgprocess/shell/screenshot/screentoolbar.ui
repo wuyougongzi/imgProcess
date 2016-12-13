@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>96</width>
-    <height>18</height>
+    <width>234</width>
+    <height>23</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,11 +29,29 @@
       <string notr="true">background-color: rgb(255, 255, 255);</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <property name="margin">
+      <property name="spacing">
+       <number>10</number>
+      </property>
+      <property name="leftMargin">
+       <number>10</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>10</number>
+      </property>
+      <property name="bottomMargin">
        <number>0</number>
       </property>
       <item>
        <widget class="QPushButton" name="btnRect">
+        <property name="minimumSize">
+         <size>
+          <width>18</width>
+          <height>18</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
           <width>18</width>
@@ -52,7 +70,97 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="btnArrow">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>18</width>
+          <height>18</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>18</width>
+          <height>18</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton#btnArrow{
+border-image: url(:/screenshot/image/screenshot/arrow.png);
+}</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnText">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>18</width>
+          <height>18</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>18</width>
+          <height>18</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton#btnText{
+	border-image: url(:/screenshot/image/screenshot/text.png);
+}</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnMosaic">
+        <property name="minimumSize">
+         <size>
+          <width>18</width>
+          <height>18</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>18</width>
+          <height>18</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton#btnMosaic{
+border-image: url(:/screenshot/image/screenshot/mosaic.png);
+}</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="btnFinish">
+        <property name="minimumSize">
+         <size>
+          <width>18</width>
+          <height>18</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
           <width>18</width>
@@ -63,7 +171,31 @@
          <string>完成</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-image: url(:/screenshot/image/screenshot/ok.png);</string>
+         <string notr="true">border-image: url(:/screenshot/image/screenshot/ok.png);</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnUndu">
+        <property name="minimumSize">
+         <size>
+          <width>18</width>
+          <height>18</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>18</width>
+          <height>18</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton#btnUndu{
+border-image: url(:/screenshot/image/screenshot/undo.png);
+}</string>
         </property>
         <property name="text">
          <string/>
@@ -94,7 +226,9 @@
          <string>撤销</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">border-image: url(:/screenshot/image/screenshot/undo.png);</string>
+         <string notr="true">QPushButton#btnCancal{
+border-image: url(:/screenshot/image/screenshot/cancal.png);
+}</string>
         </property>
         <property name="text">
          <string/>
@@ -103,6 +237,18 @@
       </item>
       <item>
        <widget class="QPushButton" name="btnSave">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>18</width>
+          <height>18</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
           <width>18</width>

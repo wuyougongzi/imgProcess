@@ -20,13 +20,20 @@ signals:
 	void selectSave();
 	void selectCancal();
 	void selectFinish();
+	void selectText();
+	void selectMosaic();
+	void selectUndu();
+	void selectArrow();
 
 private slots:
 	void onBtnCancalClicked();
 	void onBtnFinishClicked();
 	void onBtnRectClicked();
 	void onBtnSaveClicked();
-
+	void onBtnTextClicked();
+	void onBtnMosaicClicked();
+	void onBtnUnduClicked();
+	void onBtnArrowClicked();
 private:
     Ui::ScreenToolBar *ui;
 };
