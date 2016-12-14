@@ -21,7 +21,6 @@ set(IMGPRROCESS_HEADERS
 	shell/ui/hotkeylineedit.h
 	shell/ui/onlineexplorer.h
 	shell/screenshot/screenimg.h
-	shell/screenshot/screenjudge.h
 	shell/screenshot/screentoolbar.h
 	shell/screenshot/screenarearect.h
 	)
@@ -53,7 +52,6 @@ set(IMGPROCESS_SRCS
 	shell/ui/hotkeylineedit.cpp
 	shell/ui/onlineexplorer.cpp
 	shell/screenshot/screenimg.cpp
-	shell/screenshot/screenjudge.cpp
 	shell/screenshot/screentoolbar.cpp
 	shell/screenshot/screenarearect.cpp
 	shell/utility/winsort.h

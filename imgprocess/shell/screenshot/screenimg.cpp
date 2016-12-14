@@ -2,27 +2,25 @@
 #include <QApplication>
 #include <QDateTime>
 #include <QClipboard>
-#include <QIcon>
-#include <QLayout>
 #include <QDesktopWidget>
 #include <QClipboard>
 #include <QToolBar>
-#include <QRubberBand>
 #include <QApplication>
 #include <QBrush>
 #include "screentoolbar.h"
 
 #define DRAGPOINTWIDTH 5
 
+static const int MOSAICWIDTH = 6;
+
 ScreenShotImgDlg::ScreenShotImgDlg(QDialog *parent/* = 0*/) 
     : QDialog(parent)
 	, m_bFirst(true)
-	, m_bIsdrawing(false)
 	, m_drawType(DrawScreenNone)
 	, m_dragJudge(DRAGJUDGE_NULL)
 	, m_shapeType(DRAWTYPENONE)
-	, m_bIsdraging(false)
 	, m_bMousePressed(false)
+	, m_pTextEdit(NULL)
 {
 	/*
 	 * 初始化截图屏幕
@@ -33,7 +31,6 @@ ScreenShotImgDlg::ScreenShotImgDlg(QDialog *parent/* = 0*/)
 	setWindowFlags(Qt::WindowStaysOnTopHint);
 #endif
 	
-
 	QDesktopWidget* desktopWidget = QApplication::desktop();
 	QRect deskRect = desktopWidget->screenGeometry();
 	m_iWidth = deskRect.width();
@@ -56,7 +53,6 @@ ScreenShotImgDlg::ScreenShotImgDlg(QDialog *parent/* = 0*/)
 		}
 	}
 	//设为新窗口的背景图片以便获取
-	
 	m_palette.setBrush(QPalette::Background, QBrush(QPixmap(m_fullScreenPix)));
 	setAutoFillBackground(true);
 	setPalette(m_palette);
@@ -68,14 +64,9 @@ ScreenShotImgDlg::ScreenShotImgDlg(QDialog *parent/* = 0*/)
 	setPalette(m_palette);
 
 	//初始化,表示整个程序开始运作。
-	//m_bIsdrawing = false;
-	m_bIszooming = true;
 	m_zoomPoint = QCursor::pos();
-	
-	//初始化类计算
-	//m_pScreenJudge = QSharedPointer<ScreenJudge>(new ScreenJudge(m_iWidth - 1, m_iHeight - 1, m_zoomPoint));
-	
-    m_pToolBar = new ScreenToolBar(this);
+
+	m_pToolBar = new ScreenToolBar(this);
 	connect(m_pToolBar, SIGNAL(selectRect()), this, SLOT(onBtnDrawRectangle()));
 	connect(m_pToolBar, SIGNAL(selectSave()), this, SLOT(onBtnSaveClicked()));
 	connect(m_pToolBar, SIGNAL(selectCancal()), this, SLOT(onBtnCancle()));
@@ -84,11 +75,6 @@ ScreenShotImgDlg::ScreenShotImgDlg(QDialog *parent/* = 0*/)
 	connect(m_pToolBar, SIGNAL(selectMosaic()), this, SLOT(onBtnMosaic()));
 	connect(m_pToolBar, SIGNAL(selectUndu()), this, SLOT(onBtnUndu()));
 	connect(m_pToolBar, SIGNAL(selectArrow()), this, SLOT(onBtnArrow()));
-
-    m_bIsSelectDrawShape = false;
-   
-
-	//m_dragRect.resize(8);
 }
 
 ScreenShotImgDlg::~ScreenShotImgDlg()
@@ -157,6 +143,10 @@ void ScreenShotImgDlg::mousePressEvent(QMouseEvent *event)
 				if(m_shapeType == DRAWTYPEMOSAIC)
 				{
 					m_pixMap = getDrawAreaPixmap();
+				}
+				else if(m_shapeType == DRAWTYPETEXT && m_pTextEdit != NULL)
+				{
+					
 				}
 			}
 		}
@@ -290,107 +280,17 @@ void ScreenShotImgDlg::mouseMoveEvent(QMouseEvent *event)
 	else {
 		this->setCursor(Qt::ArrowCursor);
 	}
-	
+	static QPoint lastTimePt(0, 0);
 	if(m_drawType == DrawScreenShape && m_shapeType == DRAWTYPEMOSAIC && m_bMousePressed)
 	{
-		m_mosaicVec.push_back(event->pos());
-	}
-	
-   /* if (m_bIsdrawing)
-    {
-        if (event->buttons()&Qt::LeftButton) //鼠标左键按下的同时移动鼠标
-        {
-            m_pScreenJudge->setEndPoint(event->pos());
-        }
-    }
-    if (m_bIszooming)
-    {
-        m_pScreenJudge->setMousePoint(event->pos());
-        m_zoomPoint = event->pos();
-    }
-    if (m_bIsdraging)
-    {
-        //设置鼠标样式
-        if (m_pScreenJudge->isInDrawArea(event->pos()))
-        {
-            this->setCursor(Qt::SizeAllCursor);
-        }
-        else if (m_pScreenJudge->isInDragLine(event->pos()))
-        {
-            if (m_pScreenJudge->dragJudge(event->pos()) == DRAGJUDGE_EAST)
-                this->setCursor(Qt::SizeHorCursor);
-            else if (m_pScreenJudge->dragJudge(event->pos()) == DRAGJUDGE_WEST)
-                this->setCursor(Qt::SizeHorCursor);
-            else if (m_pScreenJudge->dragJudge(event->pos()) == DRAGJUDGE_SOUTH)
-                this->setCursor(Qt::SizeVerCursor);
-            else if (m_pScreenJudge->dragJudge(event->pos()) == DRAGJUDGE_NORTH)
-                this->setCursor(Qt::SizeVerCursor);
-            else if (m_pScreenJudge->dragJudge(event->pos()) == DRAGJUDGE_EASTSOUTH)
-                this->setCursor(Qt::SizeFDiagCursor);
-            else if (m_pScreenJudge->dragJudge(event->pos()) == DRAGJUDGE_WESTNORTH)
-                this->setCursor(Qt::SizeFDiagCursor);
-            else if (m_pScreenJudge->dragJudge(event->pos()) == DRAGJUDGE_WESTSOUTH)
-                this->setCursor(Qt::SizeBDiagCursor);
-            else if (m_pScreenJudge->dragJudge(event->pos()) == DRAGJUDGE_EASTNORTH)
-                this->setCursor(Qt::SizeBDiagCursor);
-        }
-        else
-        {
-            this->setCursor(Qt::ArrowCursor);
-        }
-
-        if (m_dragJudge == DRAGJUDGE_INSIDE)
-        {
-            QPoint p(event->pos().x() - m_movePoint.x(), event->pos().y() - m_movePoint.y());
-            m_pScreenJudge->moveTo(p);
-            m_movePoint = event->pos();
-        }
-        else if (m_dragJudge == DRAGJUDGE_EAST)
-		{
-			this->setCursor(Qt::SizeHorCursor);
-			m_movePoint.setX(event->pos().x());
-			m_pScreenJudge->setEndPoint(m_movePoint);
-		}
-		else if (m_dragJudge == DRAGJUDGE_WEST)
-		{
-			this->setCursor(Qt::SizeHorCursor);
-			m_movePoint.setX(event->pos().x());
-			m_pScreenJudge->setEndPoint(m_movePoint);
-		}
-		else if (m_dragJudge == DRAGJUDGE_SOUTH)
-		{
-			this->setCursor(Qt::SizeVerCursor);
-			m_movePoint.setY(event->pos().y());
-			m_pScreenJudge->setEndPoint(m_movePoint);
-		}
-		else if (m_dragJudge == DRAGJUDGE_NORTH)
-		{
-			this->setCursor(Qt::SizeVerCursor);
-			m_movePoint.setY(event->pos().y());
-			m_pScreenJudge->setEndPoint(m_movePoint);
-		}
-		else if (m_dragJudge == DRAGJUDGE_EASTNORTH)
-		{
-			this->setCursor(Qt::SizeBDiagCursor);
-			m_pScreenJudge->setEndPoint(event->pos());
-		}
-		else if (m_dragJudge == DRAGJUDGE_EASTSOUTH)
-		{
-			this->setCursor(Qt::SizeFDiagCursor);
-			m_pScreenJudge->setEndPoint(event->pos());
-		}
-		else if (m_dragJudge == DRAGJUDGE_WESTNORTH)
-		{
-			this->setCursor(Qt::SizeFDiagCursor);
-			m_pScreenJudge->setEndPoint(event->pos());
-		}
-		else if (m_dragJudge == DRAGJUDGE_WESTSOUTH)
-		{
-			this->setCursor(Qt::SizeBDiagCursor);
-			m_pScreenJudge->setEndPoint(event->pos());
-		}
-	}
+		QPoint tmpPt = event->pos();
+	/*	if(abs(tmpPt.x() - lastTimePt.x()) > MOSAICWIDTH * 2
+		|| abs(tmpPt.y() - lastTimePt.y()) > MOSAICWIDTH *2)
 	*/
+			m_mosaicVec.push_back(event->pos());
+
+		lastTimePt = event->pos();
+	}
 	update();
 }
 
@@ -461,31 +361,6 @@ void ScreenShotImgDlg::mouseReleaseEvent(QMouseEvent *event)
 	}
 	
 	m_dragJudge = DRAGJUDGE_NULL;
-	//if(m_DrawType == DrawScreenArea)
-	//	m_bIsdrawing = true;
-
-	/*
-        if (m_bIszooming)
-            m_bIszooming = false;
-        
-        if (m_bIsdrawing)
-        {
-            m_pScreenJudge->setEndPoint(event->pos());
-            m_bIsdrawing = false;
-        }
-        
-        if (!m_bIsdraging)
-        {
-            m_bIsdraging = true;
-            m_dragJudge = DRAGJUDGE_OUTSIDE;
-        }
-        else if (m_dragJudge != DRAGJUDGE_OUTSIDE)
-        {
-            m_dragJudge = DRAGJUDGE_OUTSIDE;
-        }
-
-		m_ptReleasedPos = event->pos();
-		*/
 	update();
 }
 
@@ -498,9 +373,7 @@ void ScreenShotImgDlg::contextMenuEvent(QContextMenuEvent *event)
 
 void ScreenShotImgDlg::mouseDoubleClickEvent(QMouseEvent *)
 {
-	if (m_bIsdraging)
-		onBtnSureToClipboardClicked();
-
+	onBtnSureToClipboardClicked();
 }
 
 void ScreenShotImgDlg::keyPressEvent(QKeyEvent *event)
@@ -509,62 +382,6 @@ void ScreenShotImgDlg::keyPressEvent(QKeyEvent *event)
 	{
 		onBtnCancle();
 		return;
-	}
-	if (m_bIsdraging){
-		QPoint startPoint = m_pScreenJudge->westNorthPoint();
-		QPoint endPoint = m_pScreenJudge->eastSouthPoint();
-		if (event->key() == Qt::Key_Left)
-		{
-			if (startPoint.x() - 1 < 0)
-			{
-				return;
-			}
-			else
-			{
-				m_pScreenJudge->setStartPoint(QPoint(startPoint.x() - 1, startPoint.y()));
-				m_pScreenJudge->setEndPoint(QPoint(endPoint.x() - 1, endPoint.y()));
-			}
-
-		}
-		if (event->key() == Qt::Key_Right)
-		{
-			if (endPoint.x() + 1 > m_iWidth - 1)
-			{
-				return;
-			}
-			else
-			{
-				m_pScreenJudge->setStartPoint(QPoint(startPoint.x() + 1, startPoint.y()));
-				m_pScreenJudge->setEndPoint(QPoint(endPoint.x() + 1, endPoint.y()));
-			}
-
-		}
-		if (event->key() == Qt::Key_Up)
-		{
-			if (startPoint.y() - 1 < 0)
-			{
-				return;
-			}
-			else
-			{
-				m_pScreenJudge->setStartPoint(QPoint(startPoint.x(), startPoint.y() - 1));
-				m_pScreenJudge->setEndPoint(QPoint(endPoint.x(), endPoint.y() - 1));
-			}
-		}
-		if (event->key() == Qt::Key_Down)
-		{
-			if (endPoint.y() + 1 > m_iHeight - 1)
-			{
-				return;
-			}
-			else
-			{
-				m_pScreenJudge->setStartPoint(QPoint(startPoint.x(), startPoint.y() + 1));
-				m_pScreenJudge->setEndPoint(QPoint(endPoint.x(), endPoint.y() + 1));
-			}
-
-		}
-		update();
 	}
 }
 
@@ -586,9 +403,6 @@ void ScreenShotImgDlg::onBtnSaveClicked()
 
 void ScreenShotImgDlg::onBtnDrawRectangle()
 {
-    //设置当前pen为绘制矩形框的
-    m_bIsSelectDrawShape = true;
-    m_bIsdraging = false;
     m_shapeType = DRAWTYPERECTANGLE;
 }
 
@@ -620,6 +434,11 @@ void ScreenShotImgDlg::onBtnCancle()
 void ScreenShotImgDlg::onBtnText()
 {
 	m_shapeType = DRAWTYPETEXT;
+	if(m_pTextEdit == NULL)
+	{
+		m_pTextEdit = new QTextEdit(this);
+		connect(m_pTextEdit, SIGNAL(textChanged()), this, SLOT(onTextEditTextChanged()));
+	}
 }
 
 void ScreenShotImgDlg::onBtnUndu()
@@ -641,6 +460,11 @@ void ScreenShotImgDlg::onBtnArrow()
 void ScreenShotImgDlg::onBtnMosaic()
 {
 	m_shapeType = DRAWTYPEMOSAIC;
+}
+
+void ScreenShotImgDlg::onTextEditTextChanged()
+{
+
 }
 
 QPoint ScreenShotImgDlg::getLeftTopPoint(const QPoint &pt1, const QPoint &pt2)
@@ -868,7 +692,6 @@ void ScreenShotImgDlg::drawMosaic(QPainter *painter, const QPoint &currentPt)
 		int red = 0, green = 0, blue = 0;
 
 		//总共 9 * 9个点
-		static int MOSAICWIDTH = 4;
 		for(int i = MOSAICWIDTH *(-1); i <= MOSAICWIDTH; i++)
 		{
 			for(int j = MOSAICWIDTH * (-1); j <= MOSAICWIDTH; j++)
@@ -926,6 +749,18 @@ void ScreenShotImgDlg::paintEvent(QPaintEvent *event)
 			//先绘制里面已经存在的
 			drawExitingShapeAll(&painter);
 			drawMosaic(&painter, m_ptShapeCurrentPos);
+
+			if(m_pTextEdit != NULL)
+			{
+				painter.setBrush(Qt::NoBrush);
+				painter.drawRect(QRect(m_ptShapeStartPos.x(), m_ptShapeStartPos.y(), 30 ,50));
+				m_pTextEdit->setFixedHeight(50);
+				m_pTextEdit->setFixedWidth(80);
+				m_pTextEdit->setStyleSheet("border: 1px solid blue");
+				m_pTextEdit->move(m_ptShapeStartPos);
+				m_pTextEdit->show();
+			}
+
 			showToolBar(getRightBottomPoint(m_ptPressedPos, m_ptReleasedPos));
 		}
 		break;
@@ -936,7 +771,6 @@ void ScreenShotImgDlg::paintEvent(QPaintEvent *event)
 			drawRectDragPoint(m_drawRect);
 
 			QPainter painter(this);
-
 					//先绘制里面已经存在的
 			drawExitingShapeAll(&painter);
 			
@@ -979,6 +813,20 @@ void ScreenShotImgDlg::paintEvent(QPaintEvent *event)
 						}
 					}
 					break;
+				case DRAWTYPETEXT:
+					{
+					/*	if(!m_bMousePressed)
+						{
+						painter.setBrush(Qt::NoBrush);
+						painter.drawRect(QRect(m_ptShapeStartPos.x(), m_ptShapeStartPos.y(), 30 ,50));
+						m_pTextEdit->setFixedHeight(30);
+						m_pTextEdit->setFixedWidth(50);
+						//m_pTextEdit->setStyleSheet("border: 1px solid blue");
+						m_pTextEdit->move(m_ptShapeStartPos);
+						}
+						*/
+					}
+					break;
 				case DRAWTYPENONE:
 					break;
 				default:
@@ -999,7 +847,6 @@ void ScreenShotImgDlg::paintEvent(QPaintEvent *event)
 					m_drawRect = getDrawRect(ptLeftTop, getRightBottomPoint(m_ptPressedPos, m_ptReleasedPos));
 					drawScreenArea(m_drawRect);
 					drawRectDragPoint(m_drawRect);
-					//showToolBar(getRightBottomPoint(m_ptPressedPos, m_ptReleasedPos));
 				}
 				break;
 			default:
@@ -1022,301 +869,4 @@ void ScreenShotImgDlg::paintEvent(QPaintEvent *event)
 		break;
 	}
 	__super::paintEvent(event);
-	/*
-	if (m_bIsdrawing)
-    {
-		//draw中间截屏区域
-		
-		QFont font("Microsoft YaHei", 8);
-		int x, y;
-		x = m_pScreenJudge->westNorthPoint().x();
-		y = m_pScreenJudge->westNorthPoint().y();
-		int width, height;
-		width = m_pScreenJudge->drawWidth();
-		height = m_pScreenJudge->drawHeight();
-
-		
-		//draw可拉伸点的画~。
-		QBrush brush(QColor(0, 255, 0, 125));
-		drawpainter.setBrush(brush);
-		
-		m_dragPoint = m_pScreenJudge->eastPoint();
-		drawpainter.drawRect(m_dragPoint.x(), m_dragPoint.y(), 3, 3);
-		m_dragPoint = m_pScreenJudge->westPoint();
-		drawpainter.drawRect(m_dragPoint.x() - 3, m_dragPoint.y(), 3, 3);
-		m_dragPoint = m_pScreenJudge->southPoint();
-		drawpainter.drawRect(m_dragPoint.x(), m_dragPoint.y(), 3, 3);
-		m_dragPoint = m_pScreenJudge->northPoint();
-		drawpainter.drawRect(m_dragPoint.x(), m_dragPoint.y() - 3, 3, 3);
-		m_dragPoint = m_pScreenJudge->eastSouthPoint();
-		drawpainter.drawRect(m_dragPoint.x(), m_dragPoint.y(), 3, 3);
-		m_dragPoint = m_pScreenJudge->eastNorthPoint();
-		drawpainter.drawRect(m_dragPoint.x(), m_dragPoint.y() - 3, 3, 3);
-		m_dragPoint = m_pScreenJudge->westSouthPoint();
-		drawpainter.drawRect(m_dragPoint.x() - 3, m_dragPoint.y(), 3, 3);
-		m_dragPoint = m_pScreenJudge->westNorthPoint();
-		drawpainter.drawRect(m_dragPoint.x() - 3, m_dragPoint.y() - 3, 3, 3);
-
-		
-		//draw 鼠标所有像素放大图像尺寸
-		if (m_pScreenJudge->infoJudge() == ZOOMJUDGE_LEFTDOWN)
-		{
-			pen.setColor(QColor(0, 0, 0, 150));
-			pen.setWidth(1);
-			drawpainter.setPen(pen);
-			brush.setColor(QColor(0, 0, 0, 200));
-			drawpainter.setBrush(brush);
-			drawpainter.drawRect(x, y - 18, 60, 15);
-			m_infoThirdRect = QRect(x, y - 18, 60, 15);
-			pen.setColor(QColor(255, 255, 255));
-			drawpainter.setPen(pen);
-			drawpainter.setFont(font);
-			drawpainter.drawText(m_infoThirdRect, Qt::AlignHCenter | Qt::AlignVCenter, QString("%1 x %2").arg(width).arg(height));
-		}
-		else if (m_pScreenJudge->infoJudge() == ZOOMJUDGE_LEFTUP)
-		{
-			pen.setColor(QColor(0, 0, 0, 150));
-			pen.setWidth(1);
-			drawpainter.setPen(pen);
-			brush.setColor(QColor(0, 0, 0, 200));
-			drawpainter.setBrush(brush);
-			drawpainter.drawRect(x + 3, y + 3, 60, 15);
-			m_infoThirdRect = QRect(x, y + 3, 60, 15);
-			pen.setColor(QColor(255, 255, 255));
-			drawpainter.setPen(pen);
-			drawpainter.setFont(font);
-			drawpainter.drawText(m_infoThirdRect, Qt::AlignHCenter | Qt::AlignVCenter, QString("%1 x %2").arg(width).arg(height));
-		}
-	}
-	
-	if (m_bIsdraging)
-    {
-		m_drawRect = m_pScreenJudge->drawRect();
-		QPainter drawpainter(this);
-		m_pixMap = m_fullScreenPix.copy(m_drawRect);
-		drawpainter.drawPixmap(m_drawRect, m_pixMap);
-		QPen pen;
-		pen.setColor(QColor(0, 255, 0, 125));
-		pen.setWidthF(1);
-		drawpainter.setPen(pen);
-		drawpainter.drawRect(m_drawRect);
-		QFont font("Microsoft YaHei", 8);
-		int x, y;
-		x = m_pScreenJudge->westNorthPoint().x();
-		y = m_pScreenJudge->westNorthPoint().y();
-		int width, height;
-		width = m_pScreenJudge->drawWidth();
-		height = m_pScreenJudge->drawHeight();
-
-		//可拉伸点的画~。
-		QBrush brush(QColor(0, 255, 0, 125));
-		drawpainter.setBrush(brush);
-		m_dragPoint = m_pScreenJudge->eastPoint();
-		drawpainter.drawRect(m_dragPoint.x(), m_dragPoint.y(), 3, 3);
-		m_dragPoint = m_pScreenJudge->westPoint();
-		drawpainter.drawRect(m_dragPoint.x() - 3, m_dragPoint.y(), 3, 3);
-		m_dragPoint = m_pScreenJudge->southPoint();
-		drawpainter.drawRect(m_dragPoint.x(), m_dragPoint.y(), 3, 3);
-		m_dragPoint = m_pScreenJudge->northPoint();
-		drawpainter.drawRect(m_dragPoint.x(), m_dragPoint.y() - 3, 3, 3);
-		m_dragPoint = m_pScreenJudge->eastSouthPoint();
-		drawpainter.drawRect(m_dragPoint.x(), m_dragPoint.y(), 3, 3);
-		m_dragPoint = m_pScreenJudge->eastNorthPoint();
-		drawpainter.drawRect(m_dragPoint.x(), m_dragPoint.y() - 3, 3, 3);
-		m_dragPoint = m_pScreenJudge->westSouthPoint();
-		drawpainter.drawRect(m_dragPoint.x() - 3, m_dragPoint.y(), 3, 3);
-		m_dragPoint = m_pScreenJudge->westNorthPoint();
-		drawpainter.drawRect(m_dragPoint.x() - 3, m_dragPoint.y() - 3, 3, 3);
-
-		//右键菜单
-		QAction *actionSave = new QAction(tr("保存为  &S"), this);;
-		QAction *actionCancle = new QAction(tr("取消 &C"), this);
-		QToolBar toolbar(this);
-		actionSave = new QAction(tr("保存为  &S"), this);
-		toolbar.addAction(actionSave);
-		connect(actionSave, SIGNAL(triggered()), this, SLOT(onBtnSaveClicked()));
-		toolbar.addAction(actionCancle);
-		connect(actionCancle, SIGNAL(triggered()), this, SLOT(onBtnCancle()));
-		toolbar.setGeometry(m_drawRect);
-
-		//信息框
-		if (m_pScreenJudge->infoJudge() == ZOOMJUDGE_LEFTDOWN)
-		{
-			pen.setColor(QColor(0, 0, 0, 150));
-			pen.setWidth(1);
-			drawpainter.setPen(pen);
-			brush.setColor(QColor(0, 0, 0, 200));
-			drawpainter.setBrush(brush);
-			drawpainter.drawRect(x, y - 18, 60, 15);
-			m_infoThirdRect = QRect(x, y - 18, 60, 15);
-			pen.setColor(QColor(255, 255, 255));
-			drawpainter.setPen(pen);
-			drawpainter.setFont(font);
-			drawpainter.drawText(m_infoThirdRect, Qt::AlignHCenter | Qt::AlignVCenter, QString("%1 x %2").arg(width).arg(height));
-		}
-		else if (m_pScreenJudge->infoJudge() == ZOOMJUDGE_LEFTUP)
-		{
-			pen.setColor(QColor(0, 0, 0, 150));
-			pen.setWidth(1);
-			drawpainter.setPen(pen);
-			brush.setColor(QColor(0, 0, 0, 200));
-			drawpainter.setBrush(brush);
-			drawpainter.drawRect(x + 3, y + 3, 60, 15);
-			m_infoThirdRect = QRect(x, y + 3, 60, 15);
-			pen.setColor(QColor(255, 255, 255));
-			drawpainter.setPen(pen);
-			drawpainter.setFont(font);
-			drawpainter.drawText(m_infoThirdRect, Qt::AlignHCenter | Qt::AlignVCenter, QString("%1 x %2").arg(width).arg(height));
-		}
-
-		if (m_pScreenJudge->btnJudge() == DRAGJUDGE_INSIDE)
-		{
-			m_pToolBar->setGeometry(m_pScreenJudge->eastNorthPoint().x() - m_pToolBar->width(),
-									m_pScreenJudge->eastNorthPoint().y(), 
-									m_pToolBar->width(), 
-									m_pToolBar->height());
-			m_pToolBar->show();
-		}
-		else if (m_pScreenJudge->btnJudge() == DRAGJUDGE_SOUTH)
-		{
-            m_pToolBar->setGeometry(m_pScreenJudge->eastSouthPoint().x() - m_pToolBar->width(),
-									m_pScreenJudge->eastSouthPoint().y(), m_pToolBar->width(), m_pToolBar->height());
-            m_pToolBar->show();
-		}
-		else if (m_pScreenJudge->btnJudge() == DRAGJUDGE_NORTH)
-		{
-			m_pToolBar->setGeometry(m_pScreenJudge->eastSouthPoint().x() - m_pToolBar->width(),
-				m_pScreenJudge->eastSouthPoint().y(), m_pToolBar->width(), m_pToolBar->height());
-			m_pToolBar->show();
-		}
-	}
-
-    //拖动窗口大小的时候zooming小窗口才显示
-    if (m_bIszooming)
-    {
-        QPainter zoomPainter(this);
-        QPen pen;
-        QBrush brush(QColor(0, 0, 0));
-        QFont font("Microsoft YaHei", 8);
-        int x, y;
-        x = m_zoomPoint.x();
-        y = m_zoomPoint.y();
-        int width, height;
-        width = m_pScreenJudge->drawWidth();
-        height = m_pScreenJudge->drawHeight();
-        int red, green, blue;
-        red = qRed(m_fullScreenFogImg.pixel(x, y));
-        green = qGreen(m_fullScreenFogImg.pixel(x, y));
-        blue = qBlue(m_fullScreenFogImg.pixel(x, y));
-
-        //放大框
-        m_zoomRect = QRect(x - 10, y - 10, 20, 20);
-        m_pixMap = m_fullScreenPix.copy(m_zoomRect);
-        if (m_pScreenJudge->zoomJudge() == ZOOMJUDGE_LEFTUP){
-            zoomPainter.drawPixmap(x + 10, y + 10, 100, 100, m_pixMap);
-            pen.setColor(QColor(0, 255, 0, 125));
-            pen.setWidthF(3);
-            zoomPainter.setPen(pen);
-            zoomPainter.drawLine(x + 10 + 50, y + 15, x + 10 + 50, y + 10 + 95);
-            zoomPainter.drawLine(x + 15, y + 10 + 50, x + 10 + 95, y + 10 + 50);
-            pen.setColor(QColor(0, 0, 0));
-            pen.setWidth(1);
-            zoomPainter.setPen(pen);
-            zoomPainter.drawRect(x + 10, y + 10, 100, 100);
-            //信息框            
-            brush.setColor(QColor(0, 0, 0, 200));
-            zoomPainter.setBrush(brush);
-            zoomPainter.drawRect(x + 10, y + 10 + 100, 100, 30);
-            m_infoFirstRect = QRect(x + 10, y + 10 + 100, 100, 15);
-            m_infoSecondRect = QRect(x + 10, y + 10 + 100 + 15, 100, 15);
-            pen.setColor(QColor(255, 255, 255));
-            zoomPainter.setPen(pen);
-            zoomPainter.setFont(font);
-            zoomPainter.drawText(m_infoFirstRect, Qt::AlignHCenter | Qt::AlignVCenter, QString("%1 x %2").arg(width).arg(height));
-            zoomPainter.drawText(m_infoSecondRect, Qt::AlignHCenter | Qt::AlignVCenter, QString("RGB(%1,%2,%3)").arg(red).arg(green).arg(blue));
-        }
-        else if (m_pScreenJudge->zoomJudge() == ZOOMJUDGE_LEFTDOWN){
-            zoomPainter.drawPixmap(x + 10, y - 130, 100, 100, m_pixMap);
-            pen.setColor(QColor(0, 255, 0, 125));
-            pen.setWidthF(3);
-            zoomPainter.setPen(pen);
-            zoomPainter.drawLine(x + 10 + 50, y - 125, x + 10 + 50, y - 35);
-            zoomPainter.drawLine(x + 15, y - 80, x + 10 + 95, y - 80);
-            pen.setColor(QColor(0, 0, 0));
-            pen.setWidth(1);
-            zoomPainter.setPen(pen);
-            zoomPainter.drawRect(x + 10, y - 130, 100, 100);
-            //信息框
-            brush.setColor(QColor(0, 0, 0, 200));
-            zoomPainter.setBrush(brush);
-            zoomPainter.drawRect(x + 10, y - 30, 100, 30);
-            m_infoFirstRect = QRect(x + 10, y - 30, 100, 15);
-            m_infoSecondRect = QRect(x + 10, y - 30 + 15, 100, 15);
-            pen.setColor(QColor(255, 255, 255));
-            zoomPainter.setPen(pen);
-            zoomPainter.setFont(font);
-            zoomPainter.drawText(m_infoFirstRect, Qt::AlignHCenter | Qt::AlignVCenter, QString("%1 x %2").arg(width).arg(height));
-            zoomPainter.drawText(m_infoSecondRect, Qt::AlignHCenter | Qt::AlignVCenter, QString("RGB(%1,%2,%3)").arg(red).arg(green).arg(blue));
-        }
-        else if (m_pScreenJudge->zoomJudge() == ZOOMJUDGE_RIGHTUP){
-            zoomPainter.drawPixmap(x - 110, y + 10, 100, 100, m_pixMap);
-            pen.setColor(QColor(0, 255, 0, 125));
-            pen.setWidthF(3);
-            zoomPainter.setPen(pen);
-            zoomPainter.drawLine(x - 60, y + 15, x - 60, y + 10 + 95);
-            zoomPainter.drawLine(x - 105, y + 10 + 50, x - 15, y + 10 + 50);
-            pen.setColor(QColor(0, 0, 0));
-            pen.setWidth(1);
-            zoomPainter.setPen(pen);
-            zoomPainter.drawRect(x - 110, y + 10, 100, 100);
-            //信息框
-            brush.setColor(QColor(0, 0, 0, 200));
-            zoomPainter.setBrush(brush);
-            zoomPainter.drawRect(x - 110, y + 110, 100, 30);
-            m_infoFirstRect = QRect(x - 110, y + 110, 100, 15);
-            m_infoSecondRect = QRect(x - 110, y + 110 + 15, 100, 15);
-            pen.setColor(QColor(255, 255, 255));
-            zoomPainter.setPen(pen);
-            zoomPainter.setFont(font);
-            zoomPainter.drawText(m_infoFirstRect, Qt::AlignHCenter | Qt::AlignVCenter, QString("%1 x %2").arg(width).arg(height));
-            zoomPainter.drawText(m_infoSecondRect, Qt::AlignHCenter | Qt::AlignVCenter, QString("RGB(%1,%2,%3)").arg(red).arg(green).arg(blue));
-        }
-        else if (m_pScreenJudge->zoomJudge() == ZOOMJUDGE_RIGHTDOWN){
-            zoomPainter.drawPixmap(x - 110, y - 130, 100, 100, m_pixMap);
-            pen.setColor(QColor(0, 255, 0, 125));
-            pen.setWidthF(3);
-            zoomPainter.setPen(pen);
-            zoomPainter.drawLine(x - 60, y - 125, x - 60, y - 35);
-            zoomPainter.drawLine(x - 105, y - 80, x - 15, y - 80);
-            pen.setColor(QColor(0, 0, 0));
-            pen.setWidth(1);
-            zoomPainter.setPen(pen);
-            zoomPainter.drawRect(x - 110, y - 130, 100, 100);
-            //信息框
-            brush.setColor(QColor(0, 0, 0, 200));
-            zoomPainter.setBrush(brush);
-            zoomPainter.drawRect(x - 110, y - 30, 100, 30);
-            m_infoFirstRect = QRect(x - 110, y - 30, 100, 15);
-            m_infoSecondRect = QRect(x - 110, y - 30 + 15, 100, 15);
-            pen.setColor(QColor(255, 255, 255));
-            zoomPainter.setPen(pen);
-            zoomPainter.setFont(font);
-            zoomPainter.drawText(m_infoFirstRect, Qt::AlignHCenter | Qt::AlignVCenter, QString("%1 x %2").arg(width).arg(height));
-            zoomPainter.drawText(m_infoSecondRect, Qt::AlignHCenter | Qt::AlignVCenter, QString("RGB(%1,%2,%3)").arg(red).arg(green).arg(blue));
-        }
-    }
-    if(m_bIsSelectDrawShape)
-    {
-        QPainter* painter = new QPainter(this);
-        painter->begin(this);
-        painter->setPen(QPen(Qt::red, 2, Qt::SolidLine));         //设置画笔形式 
-        // m_pPainter->setBrush(QBrush(Qt::red, Qt::SolidPattern));    //设置画刷形式 
-        int lefttopPosX = m_ptReleasedPos.x() < m_ptPressedPos.x() ? m_ptReleasedPos.x() : m_ptPressedPos.x();
-        int lefttopPosY = m_ptReleasedPos.y() < m_ptPressedPos.y() ? m_ptReleasedPos.y() : m_ptPressedPos.y();
-        int width = abs(m_ptReleasedPos.x() - m_ptPressedPos.x());
-        int height = abs(m_ptReleasedPos.y() - m_ptPressedPos.y());
-        painter->drawRect(lefttopPosX, lefttopPosY, width, height);
-        painter->end();
-    }
-	*/
 }

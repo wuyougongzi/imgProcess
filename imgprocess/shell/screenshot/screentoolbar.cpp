@@ -1,6 +1,5 @@
 #include "screentoolbar.h"
 #include "ui_screentoolbar.h"
-//#include <QClipboard>
 
 ScreenToolBar::ScreenToolBar(QWidget *parent) :
     QWidget(parent),

@@ -1,23 +1,15 @@
 #ifndef SCREENIMG_H
 #define SCREENIMG_H
 
-#include "screenjudge.h"
 #include <QDialog>
 #include <QPixmap>
 #include <QScreen>
 #include <QPalette>
-#include <QMouseEvent>
-#include <QPaintEvent>
-#include <QDebug>
 #include <QPainter>
-#include <QPoint>
 #include <QRect>
+#include <QMouseEvent>
 #include <QKeyEvent>
-#include <QFont>
-#include <QMenu>
-#include <QString>
 #include <QFileDialog>
-#include <QToolButton>
 #include <QStack>
 #include <QTextEdit>
 
@@ -48,6 +40,29 @@ struct ShapeInfo
 		penColor.setRgb(255, 0, 0);
 		brushColor.setRgb(255, 0, 0);
 	}
+};
+
+//zoom判定结果定义
+enum ZoomJudge{
+	ZOOMJUDGE_LEFTUP = 0,
+	ZOOMJUDGE_LEFTDOWN,
+	ZOOMJUDGE_RIGHTUP,
+	ZOOMJUDGE_RIGHTDOWN,
+	ZOOMJUDGE_NULL
+};
+
+enum DragJudge{
+	DRAGJUDGE_LEFTUP = 0,//按顺时针方向，以左上为起点
+	DRAGJUDGE_UP,
+	DRAGJUDGE_RIGHTUP,
+	DRAGJUDGE_RIGHT,
+	DRAGJUDGE_RIGHTDOWN,
+	DRAGJUDGE_DOWN,
+	DRAGJUDGE_LEFTDOWN,
+	DRAGJUDGE_LEFT,
+	DRAGJUDGE_INSIDE,
+	DRAGJUDGE_OUTSIDE,
+	DRAGJUDGE_NULL
 };
 
 //paint 状态机
@@ -89,7 +104,7 @@ private slots:
 	void onBtnUndu();
 	void onBtnArrow();
 	void onBtnMosaic();
-
+	void onTextEditTextChanged();
 signals:
     void onScreenImgClose();
     void onSaveSucessed(const QString& strFilePath);
@@ -109,9 +124,6 @@ private:
 	void drawMosaic(QPainter *painter, const QPoint &pt);
 
 private:
-    //类处理
-    QSharedPointer<ScreenJudge> m_pScreenJudge;
-
     //屏幕处理
     int             m_iWidth;			//整个屏幕的宽度
     int             m_iHeight;			//屏幕的高度
@@ -124,41 +136,34 @@ private:
 
 	QPalette		m_palette;
     //draw框
-    bool            m_bIsdrawing;		
 	bool			m_bFirst;
     QPixmap         m_drawPix;			//截屏图片，和下面的区域大小对应
     QRect           m_drawRect;			//截屏区域
     //zoom框
-    bool            m_bIszooming;
     QPoint          m_zoomPoint;
     QPixmap         m_pixMap;
     QRect           m_zoomRect;
     QRect           m_infoFirstRect;
     QRect           m_infoSecondRect;
     QRect           m_infoThirdRect;
-
     //drag框
-    bool            m_bIsdraging;
     QPoint          m_ptDragStartPos;
-    QPoint          m_movePoint;
     DragJudge       m_dragJudge;
 
     //当前选中绘制类型
-    bool            m_bIsSelectDrawShape;    //标志当前是否有选中某种形状，还是拖动行为
-    DrawShapeType		m_shapeType;
+    DrawShapeType	m_shapeType;
     QPoint			m_ptShapeStartPos;
 	QPoint			m_ptShapeEndPos;
 	QPoint			m_ptShapeCurrentPos;
 
 	DrawStatus		m_drawType;
-    ScreenToolBar	*m_pToolBar;			//工具栏
+    ScreenToolBar	*m_pToolBar;				//工具栏
 
 	ShapeInfo			m_currentShapeInfo;		//当前正在画的图形
 	QStack<ShapeInfo>	m_shapeStack;			//采用stack，为了支持后面的撤销操作
-	//QVector<QRect>	m_dragRect;				//可拖动变大小的几个rect区域,简化计算
 
 	QVector<QPoint>		m_mosaicVec;
-	QTextEdit		*m_textEdit;
+	QTextEdit		*m_pTextEdit;
 	QRect			m_rcTextEdit;
 };
 
