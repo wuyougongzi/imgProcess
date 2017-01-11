@@ -92,7 +92,6 @@ void ScreenShotImgDlg::mousePressEvent(QMouseEvent *event)
 	if(m_drawType == DrawScreenNone)
 	{
 		m_ptPressedPos = event->pos();
-		//m_drawType = DrawScreenDragSize;
 	}
 	//µÚ¶þÖÖ×´Ì¬
 	if(m_drawType == DrawScreenArea)

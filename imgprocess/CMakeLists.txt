@@ -43,6 +43,8 @@ set(IMGPROCESS_QRCS
 #cmake 不区分大小写
 set(IMGPROCESS_SRCS	
 	shell/main.cpp 
+	shell/stdafx.h
+	shell/stdafx.cpp
 	shell/ui/mainwindow.cpp 
 	shell/ui/startanimal.cpp 
 	shell/ui/showpicture.cpp 
@@ -54,7 +56,11 @@ set(IMGPROCESS_SRCS
 	shell/screenshot/screenimg.cpp
 	shell/screenshot/screentoolbar.cpp
 	shell/screenshot/screenarearect.cpp
+	shell/utility/cvtools.cpp
+	shell/utility/cvtools.h
 	shell/utility/winsort.h
+	shell/utility/hash.h
+	shell/cvimg/imgdata.h
 	shell/resource/imgprocess.rc
 	)
 
